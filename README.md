@@ -10,5 +10,6 @@ Detecting Suspicious Events in Video.
 # Usage
 
 1. Build the repository (``` rye build ```)
-2. To download the dataset, run ``` python -m safesight.dataset_downloader ```
-3. Unpack the dataset (``` unzip -x dataset.zip ```)
+2. Activate python virtual environment, if not already (``` source .venv/bin/activate ```)
+3. To download the dataset, run ``` python -m safesight.dataset_downloader ```
+4. Unpack the dataset (``` unzip -x dataset.zip ```)
