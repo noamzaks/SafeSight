@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Add your description here"
 authors = [
     { name = "Eyal Roginski", email = "eyalrog1@gmail.com" },
-    { name = "Mark Karlinsky", email = "34838287+markK24@users.noreply.github.com" }
+    { name = "Mark Karlinsky", email = "34838287+markK24@users.noreply.github.com" },
+    { name = "Omri Sde-Or", email = "omri.sdeor@gmail.com" }
 ]
 dependencies = [
     "mlcroissant>=1.0.5",
