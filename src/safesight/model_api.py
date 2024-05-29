@@ -1,4 +1,4 @@
-import torch
+from torch.utils.data import Dataset
 from dataclasses import dataclass
 
 
@@ -55,8 +55,8 @@ class TestResults:
 
 
 class Model:
-    def train(self, dataset: torch.Dataset):
+    def train(self, dataset: Dataset):
         pass
 
-    def test(self, dataset: torch.Dataset) -> TestResults:
+    def test(self, dataset: Dataset) -> TestResults:
         pass
