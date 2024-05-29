@@ -702,3 +702,5 @@ FodyWeavers.xsd
 
 archive.zip
 data
+
+*.lock
