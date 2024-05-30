@@ -8,11 +8,13 @@ authors = [
     { name = "Omri Sde-Or", email = "omri.sdeor@gmail.com" }
 ]
 dependencies = [
-    "mlcroissant>=1.0.5",
-    "torch>=2.3.0",
+    "mlcroissant==1.0.*", # Requires python >= 3.10, which is incompatible with lavis
+    "torch~=2.3.0",
+    "torchvision~=0.18.0",
+    "salesforce-lavis~=1.0.2",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = "~= 3.8"
 
 [build-system]
 requires = ["hatchling"]
