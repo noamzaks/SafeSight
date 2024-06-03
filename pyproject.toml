@@ -11,6 +11,12 @@ dependencies = [
     "mlcroissant>=1.0.5",
     "torch>=2.3.0",
     "ultralytics>=8.2.26",
+    "pytorchvideo>=0.1.5",
+    "transformers>=4.41.2",
+    "evaluate>=0.4.2",
+    "huggingface-hub>=0.23.2",
+    "av>=12.1.0",
+    "numpy>=1.26.4",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
