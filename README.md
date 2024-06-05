@@ -13,6 +13,8 @@ Detecting Suspicious Events in Video.
 
    Current constraints:
    - mlcroissant (for downloading datasets) will only be installed on `python>=3.10`
+   - LAVIS (BLIP model) will only be installed on `python==3.8.*`
+   - Gemini API will only be installed on `python>=3.9`
 
    You can have multiple virtual environments with different python versions in different paths. The default path is ".venv", and uv will override the virtual environment if it already exists.
 4. Activate the virtual environment with the correct python version: \

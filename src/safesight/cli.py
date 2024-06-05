@@ -33,6 +33,19 @@ else:
         click.echo("This command requires Python 3.10 or later.")
         sys.exit(1)
 
+
+if is_python_at_least((3, 9)):
+    # noinspection PyUnresolvedReferences
+    import safesight.test_gemini
+else:
+    @cli.command()
+    @click.argument("_", nargs=-1)
+    def gemini(_):
+        """Commands for Gemini (python>=3.9)"""
+        click.echo("This command requires Python 3.9 or later.")
+        sys.exit(1)
+
+
 if is_python_exactly("3.8"):
     # noinspection PyUnresolvedReferences
     import safesight.test_blip
