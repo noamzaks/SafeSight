@@ -23,9 +23,9 @@ Detecting Suspicious Events in Video.
 
    ### Pytorch notice:
    By default, CUDA version of Pytorch is installed on Linux and CPU version on Windows. To force CUDA/ROCM/CPU version to be installed, run instead:
-   - CUDA (Nvidia GPUs): ``` uv pip install -e . --override override-cuda.txt --index-url=https://download.pytorch.org/whl/cpu ```
-   - ROCM (AMD GPUs): ``` uv pip install -e . --override override-rocm.txt --index-url=https://download.pytorch.org/whl/rocm6.0 ```
-   - CPU (reduced package size): ``` uv pip install -e . --override override-cpu.txt --index-url=https://download.pytorch.org/whl/cu121 ```
+   - CUDA (Nvidia GPUs): ``` uv pip install -e . --override override-cuda.txt --extra-index-url=https://download.pytorch.org/whl/cpu ```
+   - ROCM (AMD GPUs): ``` uv pip install -e . --override override-rocm.txt --extra-index-url=https://download.pytorch.org/whl/rocm6.0 ```
+   - CPU (reduced package size): ``` uv pip install -e . --override override-cpu.txt --extra-index-url=https://download.pytorch.org/whl/cu121 ```
    
    Make sure CUDA/ROCM is installed. (you can run ``` cuda-smi ``` or ``` rocm-smi```) 
 
