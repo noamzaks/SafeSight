@@ -2,7 +2,6 @@ import sys
 
 import click
 
-
 def is_venv():
     return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
 
@@ -59,4 +58,6 @@ else:
 
 
 def main():
+    import safesight.videomae
+    import safesight.yolo
     cli()
