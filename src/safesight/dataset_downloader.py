@@ -1,5 +1,47 @@
+import os
+import zipfile
+
+import click
 import mlcroissant as mlc
 import urllib.request
+import safesight.cli as cli
+
+datasets = {
+    "ckay16": "https://www.kaggle.com/datasets/ckay16/accident-detection-from-cctv-footage/croissant/download",
+}
+
+
+@cli.cli.group()
+def dataset():
+    """Download datasets (python>=3.10)"""
+    pass
+
+
+@dataset.command(name="list")
+def list_datasets():
+    """List available datasets"""
+    for name, url in datasets.items():
+        click.echo(f"{name}: \t{url}")
+
+
+@dataset.command()
+@click.argument("name")
+@click.option("-d", "--dest", default=None, help="Destination directory")
+def download(name, dest):
+    """Download dataset NAME into ./data/<dest>"""
+    if name not in datasets:
+        click.echo(f"Dataset {name} not found.")
+        return
+    if dest is None:
+        dest = name
+    download_dataset(datasets[name], f"{dest}.zip")
+
+    with zipfile.ZipFile(f"{dest}.zip", "r") as zip_ref:
+        zip_ref.extractall(f"data/{dest}")
+
+    os.remove(f"{dest}.zip")
+
+    click.echo(f"Done!")
 
 
 def get_download_url(croissant_url: str) -> str | None:
@@ -29,9 +71,3 @@ def download_dataset(croissant_url: str, dest_filename: str):
     download_url = get_download_url(croissant_url)
     if download_url:
         download_file(download_url, dest_filename)
-
-
-download_dataset(
-    "https://www.kaggle.com/datasets/ckay16/accident-detection-from-cctv-footage/croissant/download",
-    "archive.zip",
-)
