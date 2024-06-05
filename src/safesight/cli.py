@@ -53,7 +53,7 @@ else:
     @cli.command()
     @click.argument("_", nargs=-1)
     def lavis(_):
-        """Commands for the LAVIS library (BLIP model)"""
+        """Commands for the LAVIS library (BLIP model) (python==3.8)"""
         click.echo("This command requires Python 3.8")
         sys.exit(1)
 

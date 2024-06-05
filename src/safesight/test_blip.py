@@ -11,14 +11,14 @@ from safesight.cli import cli
 
 @cli.group()
 def lavis():
-    """Commands for the LAVIS library (BLIP model)"""
+    """Commands for the LAVIS library (BLIP model) (python==3.8)"""
     pass
 
 
 @lavis.command()
 @click.argument("path", type=click.Path(exists=True, dir_okay=True, file_okay=False))
 @click.argument("question", type=str)
-@click.option("-v", "--verbose", is_flag=True, help="Print verbose output")
+@click.option("-v", "--verbose", is_flag=True, help="click.echo verbose output")
 def test_dir(path, question, verbose):
     """ Test the BLIP model on a directory of images. Outputs the number of 'yes' and 'no' answers. """
 
@@ -33,7 +33,7 @@ def test_dir(path, question, verbose):
     # negatives = pathlib.Path("data/val/Non Accident")
 
     # if not positives.exists() or not negatives.exists():
-    #     print("Dataset not found.", file=sys.stderr)
+    #     click.echo("Dataset not found.", file=sys.stderr)
     #     exit(-1)
 
     def test_dir(directory: pathlib.Path):
@@ -41,7 +41,7 @@ def test_dir(path, question, verbose):
 
         for image in directory.iterdir():
             if verbose:
-                print(f"Processing {image.name}...")
+                click.echo(f"Processing {image.name}...")
             raw_img = PIL.Image.open(image).convert("RGB")
             input_img = vis_processors["eval"](raw_img).unsqueeze(0).to(device)
             input_q = txt_processors["eval"](question)
@@ -52,20 +52,20 @@ def test_dir(path, question, verbose):
 
             if answer == "yes":
                 if verbose:
-                    print("Model answered 'yes'.")
+                    click.echo("Model answered 'yes'.")
                 yes += 1
             elif answer == "no":
                 if verbose:
-                    print("Model answered 'no'.")
+                    click.echo("Model answered 'no'.")
                 no += 1
             # elif "yes" in answer:
-            #     print(f"Model answered '{answer}', assuming 'yes'.")
+            #     click.echo(f"Model answered '{answer}', assuming 'yes'.")
             #     yes += 1
             # elif "no" in answer:
-            #     print(f"Model answered '{answer}', assuming 'no'.")
+            #     click.echo(f"Model answered '{answer}', assuming 'no'.")
             #     no += 1
             else:
-                print(f"Model answered '{answer}', too ambiguous.")
+                click.echo(f"Model answered '{answer}', too ambiguous.")
         return yes, no
 
     # true_positives, false_negatives = test_dir(positives)
@@ -73,15 +73,15 @@ def test_dir(path, question, verbose):
 
     positives, negatives = test_dir(pathlib.Path(path))
 
-    print("\n\n")
-    # print(f"""
+    click.echo("\n\n")
+    # click.echo(f"""
     # Test Results:
     #     * TP: {true_positives} # true positives
     #     * TN: {true_negatives} # true negatives
     #     * FP: {false_positives} # false positives
     #     * FN: {false_negatives} # false negatives
     # """)
-    print(f"""
+    click.echo(f"""
     Test Results:
         * Positives: {positives}
         * Negatives: {negatives}
