@@ -33,6 +33,17 @@ else:
         click.echo("This command requires Python 3.10 or later.")
         sys.exit(1)
 
+if is_python_exactly("3.8"):
+    # noinspection PyUnresolvedReferences
+    import safesight.test_blip
+else:
+    @cli.command()
+    @click.argument("_", nargs=-1)
+    def lavis(_):
+        """Commands for the LAVIS library (BLIP model)"""
+        click.echo("This command requires Python 3.8")
+        sys.exit(1)
+
 
 def main():
     cli()
