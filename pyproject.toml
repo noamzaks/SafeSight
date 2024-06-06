@@ -11,7 +11,6 @@ dependencies = [
     "mlcroissant~=1.0.5; python_version >= '3.10'",
     "salesforce-lavis~=1.0.2; python_version == '3.8.*'",
     "google-generativeai~=0.5.0; python_version >= '3.9'",
-
     "click~=8.1.7",
     "torch~=2.3.0",
     "torchvision~=0.18.0",
@@ -19,6 +18,7 @@ dependencies = [
     "evaluate~=0.4.2",
     "huggingface-hub~=0.23.2",
     "av~=12.1.0",
+    "pytube>=15.0.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"

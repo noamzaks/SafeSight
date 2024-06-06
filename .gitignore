@@ -703,5 +703,6 @@ FodyWeavers.xsd
 
 data
 yolov8n.pt
+youtube_dataset
 
 *.lock
