@@ -56,8 +56,20 @@ else:
         click.echo("This command requires Python 3.8")
         sys.exit(1)
 
-
-def main():
+if is_python_exactly("3.8"):
+    # noinspection PyUnresolvedReferences
     import safesight.videomae
     import safesight.yolo
+else:
+    @cli.command()
+    @click.argument("_", nargs=-1)
+    def videomae(_):
+        """Commands for VideoMAE model (temporarily only Python 3.8) """
+        click.echo("This command requires Python 3.8 (temporarily)")
+        sys.exit(1)
+
+
+def main():
+    # import safesight.videomae
+    # import safesight.yolo
     cli()
