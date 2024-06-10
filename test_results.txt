@@ -1,161 +1,111 @@
-Video name: data/videos/5pGjkv5lZXE.mp4
-#Frames in video: 19346.0
+Video name: data/videos/9DRFJxKHc6g.mp4
+#Frames in video: 19340.0
 <Width, Height> of video: <1280.0,720.0>
-Sampling with step of 200
-Frame #0, evaluation: False.
-Frame #1, evaluation: False.
-Frame #2, evaluation: False.
-Frame #3, evaluation: False.
-Frame #4, evaluation: False.
-Frame #5, evaluation: False.
-Frame #6, evaluation: False.
-Frame #7, evaluation: False.
-Frame #8, evaluation: False.
-Frame #9, evaluation: False.
-Frame #10, evaluation: False.
-Frame #11, evaluation: False.
-Frame #12, evaluation: False.
-Frame #13, evaluation: False.
-Frame #14, evaluation: False.
-Frame #15, evaluation: False.
-Frame #16, evaluation: False.
-Frame #17, evaluation: False.
-Frame #18, evaluation: False.
-Frame #19, evaluation: False.
-Frame #20, evaluation: False.
-Frame #21, evaluation: False.
-Frame #22, evaluation: False.
-Frame #23, evaluation: False.
-Frame #24, evaluation: False.
-Frame #25, evaluation: False.
-Frame #26, evaluation: False.
-Frame #27, evaluation: False.
-Frame #28, evaluation: False.
-Frame #29, evaluation: False.
-Frame #30, evaluation: False.
-Frame #31, evaluation: False.
-Frame #32, evaluation: False.
-Frame #33, evaluation: False.
-Frame #34, evaluation: False.
-Frame #35, evaluation: False.
-Frame #36, evaluation: False.
-Frame #37, evaluation: False.
-Frame #38, evaluation: False.
-Frame #39, evaluation: False.
-Frame #40, evaluation: False.
-Frame #41, evaluation: False.
-Frame #42, evaluation: False.
-Frame #43, evaluation: False.
-Frame #44, evaluation: False.
-Frame #45, evaluation: False.
-Frame #46, evaluation: False.
-Frame #47, evaluation: False.
-Frame #48, evaluation: False.
-Frame #49, evaluation: False.
-Frame #50, evaluation: False.
-Frame #51, evaluation: False.
-Frame #52, evaluation: False.
-Frame #53, evaluation: False.
-Frame #54, evaluation: False.
-Frame #55, evaluation: False.
-Frame #56, evaluation: False.
-Frame #57, evaluation: False.
-Frame #58, evaluation: False.
-Frame #59, evaluation: False.
-Frame #60, evaluation: False.
-Frame #61, evaluation: False.
-Frame #62, evaluation: False.
-Frame #63, evaluation: False.
-Frame #64, evaluation: False.
-Frame #65, evaluation: False.
-Frame #66, evaluation: False.
-Frame #67, evaluation: False.
-Frame #68, evaluation: False.
-Frame #69, evaluation: False.
-Frame #70, evaluation: False.
-Frame #71, evaluation: False.
-Frame #72, evaluation: False.
-Frame #73, evaluation: False.
-Frame #74, evaluation: False.
-Frame #75, evaluation: False.
-Frame #76, evaluation: False.
-Frame #77, evaluation: False.
-Frame #78, evaluation: False.
-Frame #79, evaluation: False.
-Frame #80, evaluation: False.
-Frame #81, evaluation: False.
-Frame #82, evaluation: False.
-Frame #83, evaluation: False.
-Frame #84, evaluation: False.
-Frame #85, evaluation: False.
-Frame #86, evaluation: False.
-Frame #87, evaluation: False.
-Frame #88, evaluation: False.
-Frame #89, evaluation: False.
-Frame #90, evaluation: False.
-Frame #91, evaluation: False.
-Frame #92, evaluation: False.
-Frame #93, evaluation: False.
-Frame #94, evaluation: False.
-Frame #95, evaluation: False.
-Frame #96, evaluation: False.
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
-Failed to read image from video file
+Sampling with step of 100
+Frame #0, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 3.384.
+Frame #1, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 1.852.
+Frame #2, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 1.983.
+Frame #3, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 1.972.
+Frame #4, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.044.
+Frame #5, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.127.
+Frame #6, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.211.
+Frame #7, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.316.
+Frame #8, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.375.
+Frame #9, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.245.
+Frame #10, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.360.
+Frame #11, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.352.
+Frame #12, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.328.
+Frame #13, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.321.
+Frame #14, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.221.
+Frame #15, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.267.
+Frame #16, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.691.
+Frame #17, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.284.
+Frame #18, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.348.
+Frame #19, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.778.
+Frame #20, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.573.
+Frame #21, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.335.
+Frame #22, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.288.
+Frame #23, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.291.
+Frame #24, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.369.
+Frame #25, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.317.
+Frame #26, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.594.
+Frame #27, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.523.
+Frame #28, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.612.
+Frame #29, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.855.
+Frame #30, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.352.
+Frame #31, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.159.
+Frame #32, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.291.
+Frame #33, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.087.
+Frame #34, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.102.
+Frame #35, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.062.
+Frame #36, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.133.
+Frame #37, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.171.
+Frame #38, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.160.
+Frame #39, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.181.
+Frame #40, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.147.
+Frame #41, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.247.
+Frame #42, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.250.
+Frame #43, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.075.
+Frame #44, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.172.
+Frame #45, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.099.
+Frame #46, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.062.
+Frame #47, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.084.
+Frame #48, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.143.
+Frame #49, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.153.
+Frame #50, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.317.
+Frame #51, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.254.
+Frame #52, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.212.
+Frame #53, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.140.
+Frame #54, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.086.
+Frame #55, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.136.
+Frame #56, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.216.
+Frame #57, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.290.
+Frame #58, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.092.
+Frame #59, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.068.
+Frame #60, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.102.
+Frame #61, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.086.
+Frame #62, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.083.
+Frame #63, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.101.
+Frame #64, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.166.
+Frame #65, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.110.
+Frame #66, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.057.
+Frame #67, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.144.
+Frame #68, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.206.
+Frame #69, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.580.
+Frame #70, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.782.
+Frame #71, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.602.
+Frame #72, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.380.
+Frame #73, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.180.
+Frame #74, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.250.
+Frame #75, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.189.
+Frame #76, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.161.
+Frame #77, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.193.
+Frame #78, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.106.
+Frame #79, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.047.
+Frame #80, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.077.
+Frame #81, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.048.
+Frame #82, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.152.
+Frame #83, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.256.
+Frame #84, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.188.
+Frame #85, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.183.
+Frame #86, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.536.
+Frame #87, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.465.
+Frame #88, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.305.
+Frame #89, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.239.
+Frame #90, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.118.
+Frame #91, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.102.
+Frame #92, evaluation: Evaluation(result=True, raw_answer='yes'), time taken: 2.030.
+Frame #93, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 1.984.
+Frame #94, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.213.
+Frame #95, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.333.
+Frame #96, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.090.
+Frame #97, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.217.
+Frame #98, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.098.
+Frame #99, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.089.
+Frame #100, evaluation: Evaluation(result=False, raw_answer='no'), time taken: 2.110.
 
             Overall results:
-            Model answered True 0/97 times, 0.0%
-            Model answered False 97/97 times, 1.0%
+            Model answered True 41/101 times, 40.59%
+            Model answered False 60/101 times, 59.41%
+            Average time taken per frame: 2.2427347650622376
             

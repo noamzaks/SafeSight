@@ -6,6 +6,7 @@ from dataclasses import dataclass
 @dataclass
 class Evaluation:
     result: bool
+    raw_answer: str = ""
 
 
 class Pipeline:

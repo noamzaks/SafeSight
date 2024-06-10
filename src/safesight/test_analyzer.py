@@ -1,8 +1,8 @@
 import sys
-from itertools import count
 from pathlib import Path
 from PIL.Image import Image
 import cv2
+from lavis.models.alpro_models.alpro_retrieval import time
 from safesight.analyzer import Analyzer
 from safesight.file_camera import FileCamera
 from safesight.pipeline import Evaluation
@@ -10,7 +10,7 @@ from safesight.pipeline import Evaluation
 DEBUG = True
 
 
-def test_analyzer(file: str, sampling_step: int = 100):
+def test_analyzer(file: str, sampling_step: int = 100, frame_limit: int = 100):
     analyzer = Analyzer()
     file_camera = FileCamera(Path(file))
     print(f"Video name: {file}")
@@ -23,17 +23,27 @@ def test_analyzer(file: str, sampling_step: int = 100):
 
     frame_number = 0
     results: list[Evaluation] = []
+    times: list[float] = []
+
+    last_time = time.time()
 
     def process_result(image: Image, evaluation: Evaluation):
-        nonlocal frame_number
-        print(f"Frame #{frame_number}, evaluation: {evaluation.result}.")
+        nonlocal frame_number, last_time
+        current_time = time.time()
+        time_taken = current_time - last_time
+
+        output_line = f"Frame #{frame_number}, evaluation: {evaluation}, time taken: {time_taken:.3f}."
+        print(output_line)
+
         if DEBUG:
-            print(
-                f"Frame #{frame_number}, evaluation: {evaluation.result}.",
-                file=sys.stderr,
-            )  # Feedback for running into file.
+            print(output_line, file=sys.stderr)  # Feedback for running into file.
+
         frame_number += 1
         results.append(evaluation)
+        times.append(time_taken)
+        last_time = time.time()
+        if frame_number > frame_limit:
+            analyzer.stop_analysis()
 
     analyzer.run_analyzer(file_camera, process_result, sampling_step)
 
@@ -42,11 +52,12 @@ def test_analyzer(file: str, sampling_step: int = 100):
     print(
         f"""
             Overall results:
-            Model answered True {positives}/{frame_number} times, {100.0 * (positives / frame_number)}%
-            Model answered False {negatives}/{frame_number} times, {100.0 * (negatives / frame_number)}%
+            Model answered True {positives}/{frame_number} times, {100.0 * (positives / frame_number):.2f}%
+            Model answered False {negatives}/{frame_number} times, {100.0 * (negatives / frame_number):.2f}%
+            Average time taken per frame: {sum(times) / len(times):.3f}
             """
     )
 
 
 if __name__ == "__main__":
-    test_analyzer("data/videos/5pGjkv5lZXE.mp4", 200)
+    test_analyzer("data/videos/9DRFJxKHc6g.mp4", 100)

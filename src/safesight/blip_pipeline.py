@@ -29,9 +29,7 @@ class BlipPipeline(Pipeline):
         )
         answer = res[0]
 
-        if answer == "yes":
-            self.last_evaluation = Evaluation(True)
-        self.last_evaluation = Evaluation(False)
+        self.last_evaluation = Evaluation(answer == "yes", answer)
 
         return self.last_evaluation
 
