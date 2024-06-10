@@ -19,6 +19,8 @@ dependencies = [
     "huggingface-hub~=0.23.2",
     "av~=12.1.0",
     "pytube>=15.0.0",
+    "pillow>=10.3.0",
+    "opencv-python>=4.10.0.82",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
