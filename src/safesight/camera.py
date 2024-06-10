@@ -13,8 +13,6 @@ class Camera:
         if not read:
             return None
 
-        print(image)
-
 
 if __name__ == "__main__":
     cam = Camera(-1)

@@ -1,0 +1,161 @@
+Video name: data/videos/5pGjkv5lZXE.mp4
+#Frames in video: 19346.0
+<Width, Height> of video: <1280.0,720.0>
+Sampling with step of 200
+Frame #0, evaluation: False.
+Frame #1, evaluation: False.
+Frame #2, evaluation: False.
+Frame #3, evaluation: False.
+Frame #4, evaluation: False.
+Frame #5, evaluation: False.
+Frame #6, evaluation: False.
+Frame #7, evaluation: False.
+Frame #8, evaluation: False.
+Frame #9, evaluation: False.
+Frame #10, evaluation: False.
+Frame #11, evaluation: False.
+Frame #12, evaluation: False.
+Frame #13, evaluation: False.
+Frame #14, evaluation: False.
+Frame #15, evaluation: False.
+Frame #16, evaluation: False.
+Frame #17, evaluation: False.
+Frame #18, evaluation: False.
+Frame #19, evaluation: False.
+Frame #20, evaluation: False.
+Frame #21, evaluation: False.
+Frame #22, evaluation: False.
+Frame #23, evaluation: False.
+Frame #24, evaluation: False.
+Frame #25, evaluation: False.
+Frame #26, evaluation: False.
+Frame #27, evaluation: False.
+Frame #28, evaluation: False.
+Frame #29, evaluation: False.
+Frame #30, evaluation: False.
+Frame #31, evaluation: False.
+Frame #32, evaluation: False.
+Frame #33, evaluation: False.
+Frame #34, evaluation: False.
+Frame #35, evaluation: False.
+Frame #36, evaluation: False.
+Frame #37, evaluation: False.
+Frame #38, evaluation: False.
+Frame #39, evaluation: False.
+Frame #40, evaluation: False.
+Frame #41, evaluation: False.
+Frame #42, evaluation: False.
+Frame #43, evaluation: False.
+Frame #44, evaluation: False.
+Frame #45, evaluation: False.
+Frame #46, evaluation: False.
+Frame #47, evaluation: False.
+Frame #48, evaluation: False.
+Frame #49, evaluation: False.
+Frame #50, evaluation: False.
+Frame #51, evaluation: False.
+Frame #52, evaluation: False.
+Frame #53, evaluation: False.
+Frame #54, evaluation: False.
+Frame #55, evaluation: False.
+Frame #56, evaluation: False.
+Frame #57, evaluation: False.
+Frame #58, evaluation: False.
+Frame #59, evaluation: False.
+Frame #60, evaluation: False.
+Frame #61, evaluation: False.
+Frame #62, evaluation: False.
+Frame #63, evaluation: False.
+Frame #64, evaluation: False.
+Frame #65, evaluation: False.
+Frame #66, evaluation: False.
+Frame #67, evaluation: False.
+Frame #68, evaluation: False.
+Frame #69, evaluation: False.
+Frame #70, evaluation: False.
+Frame #71, evaluation: False.
+Frame #72, evaluation: False.
+Frame #73, evaluation: False.
+Frame #74, evaluation: False.
+Frame #75, evaluation: False.
+Frame #76, evaluation: False.
+Frame #77, evaluation: False.
+Frame #78, evaluation: False.
+Frame #79, evaluation: False.
+Frame #80, evaluation: False.
+Frame #81, evaluation: False.
+Frame #82, evaluation: False.
+Frame #83, evaluation: False.
+Frame #84, evaluation: False.
+Frame #85, evaluation: False.
+Frame #86, evaluation: False.
+Frame #87, evaluation: False.
+Frame #88, evaluation: False.
+Frame #89, evaluation: False.
+Frame #90, evaluation: False.
+Frame #91, evaluation: False.
+Frame #92, evaluation: False.
+Frame #93, evaluation: False.
+Frame #94, evaluation: False.
+Frame #95, evaluation: False.
+Frame #96, evaluation: False.
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+Failed to read image from video file
+
+            Overall results:
+            Model answered True 0/97 times, 0.0%
+            Model answered False 97/97 times, 1.0%
+            

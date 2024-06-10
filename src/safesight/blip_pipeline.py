@@ -15,11 +15,11 @@ class BlipPipeline(Pipeline):
             )
         )
 
+        self.last_evaluation = Evaluation(False)
+
         self.question = f"""Please answer with "yes" or "no". {question}"""
-        pass
 
     def process_image(self, image: Image) -> Optional[Evaluation]:
-
         input_img = self.vis_processors["eval"](image).unsqueeze(0).to(self.device)
         input_q = self.txt_processors["eval"](self.question)
 
@@ -30,23 +30,13 @@ class BlipPipeline(Pipeline):
         answer = res[0]
 
         if answer == "yes":
-            print("Model answered yes.")
-            return Evaluation(True)
-        elif answer == "no":
-            print("Model answered no.")
-            return Evaluation(False)
-        # elif "yes" in answer:
-        #     click.echo(f"Model answered '{answer}', assuming 'yes'.")
-        #     yes += 1
-        # elif "no" in answer:
-        #     click.echo(f"Model answered '{answer}', assuming 'no'.")
-        #     no += 1
-        else:
-            print(f"Model answered '{answer}', too ambiguous.")
-        return Evaluation(False)
+            self.last_evaluation = Evaluation(True)
+        self.last_evaluation = Evaluation(False)
+
+        return self.last_evaluation
 
     def evaluate(self) -> Evaluation:
-        return Evaluation(False)
+        return self.last_evaluation
 
 
 if __name__ == "__main__":
