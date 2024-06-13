@@ -1,15 +1,26 @@
 from typing import Callable
-from safesight.blip_pipeline import BlipPipeline
 from safesight.camera import Camera
-from pathlib import Path
+from safesight.pipeline import Evaluation
+from PIL.Image import Image
 
 
 class Analyzer:
     def __init__(self) -> None:
         pass
 
-    def run_analyzer(self, camera: Camera, evaluation_callback: Callable):
+    def run_analyzer(
+        self,
+        camera: Camera,
+        evaluation_callback: Callable[[Image, Evaluation], None],
+        sampling_step: int = 1,
+    ):
+        """
+        Runs the analyzer on a given Camera. Calls `evaluation_callback` when an
+        evaluation is reached.
+
+        To run on a file, see safesight.file_camera
+        """
         pass
 
-    def run_analyzer_video(self, video_file: Path, evaluation_callback: Callable):
+    def stop_analysis(self) -> None:
         pass

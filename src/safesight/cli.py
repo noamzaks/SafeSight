@@ -2,8 +2,11 @@ import sys
 
 import click
 
+
 def is_venv():
-    return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+    return hasattr(sys, "real_prefix") or (
+        hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
+    )
 
 
 def is_python_exactly(version):
@@ -25,6 +28,7 @@ if is_python_at_least((3, 10)):
     # noinspection PyUnresolvedReferences
     import safesight.dataset_downloader
 else:
+
     @cli.command()
     @click.argument("_", nargs=-1)
     def dataset(_):
@@ -37,6 +41,7 @@ if is_python_at_least((3, 9)):
     # noinspection PyUnresolvedReferences
     import safesight.test_gemini
 else:
+
     @cli.command()
     @click.argument("_", nargs=-1)
     def gemini(_):
@@ -47,8 +52,10 @@ else:
 
 if is_python_exactly("3.8"):
     # noinspection PyUnresolvedReferences
+    import safesight.test_analyzer
     import safesight.test_blip
 else:
+
     @cli.command()
     @click.argument("_", nargs=-1)
     def lavis(_):
@@ -56,15 +63,17 @@ else:
         click.echo("This command requires Python 3.8")
         sys.exit(1)
 
+
 if is_python_exactly("3.8"):
     # noinspection PyUnresolvedReferences
     import safesight.videomae
     import safesight.yolo
 else:
+
     @cli.command()
     @click.argument("_", nargs=-1)
     def videomae(_):
-        """Commands for VideoMAE model (temporarily only Python 3.8) """
+        """Commands for VideoMAE model (temporarily only Python 3.8)"""
         click.echo("This command requires Python 3.8 (temporarily)")
         sys.exit(1)
 
