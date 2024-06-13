@@ -1,9 +1,12 @@
-import sys
 from pathlib import Path
+import sys
+import time
+
 from PIL.Image import Image
 import cv2
-from lavis.models.alpro_models.alpro_retrieval import time
-from safesight.analyzer import Analyzer
+
+from safesight.blip_pipeline import BlipPipeline
+from safesight.single_pipeline_analyzer import SinglePipelineAnalyzer
 from safesight.file_camera import FileCamera
 from safesight.pipeline import Evaluation
 
@@ -11,7 +14,9 @@ DEBUG = True
 
 
 def test_analyzer(file: str, sampling_step: int = 100, frame_limit: int = 100):
-    analyzer = Analyzer()
+    analyzer = SinglePipelineAnalyzer(
+        BlipPipeline, "Is there a road accident in this video?"
+    )
     file_camera = FileCamera(Path(file))
     print(f"Video name: {file}")
     print(f"#Frames in video: {file_camera.video.get(cv2.CAP_PROP_FRAME_COUNT)}")
@@ -37,6 +42,7 @@ def test_analyzer(file: str, sampling_step: int = 100, frame_limit: int = 100):
 
         if DEBUG:
             print(output_line, file=sys.stderr)  # Feedback for running into file.
+            image.save(f"./temp_images/{frame_number}.jpg")
 
         frame_number += 1
         results.append(evaluation)
