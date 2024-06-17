@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 from torch.utils.data import Dataset
 
@@ -24,7 +25,16 @@ class TestResults:
     false_positive_rate: float
     false_negative_rate: float
 
-    def __init__(self, test_labels: list[bool], test_results: list[bool]) -> None:
+    def __str__(self):
+        return (
+            f"TestResults("
+            f"accuracy={self.accuracy:.3f}, "
+            f"precision={self.precision:.3f}, "
+            f"false_positive_rate={self.false_positive_rate:.3f}, "
+            f"false_negative_rate={self.false_negative_rate:.3f})"
+        )
+
+    def __init__(self, test_labels: List[bool], test_results: List[bool]) -> None:
         assert len(test_results) == len(test_labels)
 
         tp = sum(
@@ -38,26 +48,30 @@ class TestResults:
         )
         fp = sum(
             [
-                int(not label and result)
+                int((not label) and result)
                 for label, result in zip(test_labels, test_results)
             ]
         )
         fn = sum(
             [
-                int(label and not result)
+                int(label and (not result))
                 for label, result in zip(test_labels, test_results)
             ]
         )
 
-        self.accuracy = (tp + tn) / (tp + tn + fp + fn)
-        self.precision = tp / (tp + fp)
-        self.false_positive_rate = fp / (fp + tn)
-        self.false_negative_rate = fn / (fn + tp)
-
-
-class Model:
-    def train(self, dataset: Dataset):
-        pass
-
-    def test(self, dataset: Dataset) -> TestResults:
-        pass
+        try:
+            self.accuracy = (tp + tn) / (tp + tn + fp + fn)
+        except ZeroDivisionError:
+            self.accuracy = 0
+        try:
+            self.precision = tp / (tp + fp)
+        except ZeroDivisionError:
+            self.precision = 0
+        try:
+            self.false_positive_rate = fp / (fp + tn)
+        except ZeroDivisionError:
+            self.false_positive_rate = 0
+        try:
+            self.false_negative_rate = fn / (fn + tp)
+        except ZeroDivisionError:
+            self.false_negative_rate = 0

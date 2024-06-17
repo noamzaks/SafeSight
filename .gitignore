@@ -705,5 +705,7 @@ data
 yolov8n.pt
 youtube_dataset
 temp_frames
+zaksaset
+models
 
 *.lock
