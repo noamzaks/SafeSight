@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from typing import Callable, Dict, Optional, Tuple, List
 from PIL.Image import Image
+import PIL.Image
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
@@ -21,16 +22,17 @@ from safesight.model_api import TestResults
 
 @dataclass
 class ModelSettings:
-    image_size: int
     internal_layer_size: int
     epochs: int
     learning_rate: float
     momentum: float
+    transform: Callable
 
 
 class Net(nn.Module):
     def __init__(self, settings: ModelSettings):
         super(Net, self).__init__()
+        self.settings = settings
 
         self.idx_to_class: Dict[str, int] = {}
         self.class_to_idx: Dict[str, int] = {}
@@ -40,16 +42,21 @@ class Net(nn.Module):
         self.conv2 = nn.Conv2d(settings.internal_layer_size, 16, 5)
 
         # Calculate the size of the feature map after the convolutional and pooling layers
-        conv_output_size = self._get_conv_output(settings.image_size)
+        conv_output_size = self._get_conv_output(self.get_image_size())
 
         self.fc1 = nn.Linear(conv_output_size, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 2)
 
-    def _get_conv_output(self, input_size):
+    def get_image_size(self) -> Tuple[int, int]:
+        dummy_image = PIL.Image.new("RGB", (1, 1))
+        transformed_image = self.settings.transform(dummy_image)
+        return transformed_image.size()[1:3]
+
+    def _get_conv_output(self, input_size: Tuple[int, int]):
         # Create a dummy tensor with the input size and pass it through the conv and pool layers
         with torch.no_grad():
-            x = torch.zeros(1, 3, input_size, input_size)
+            x = torch.zeros(1, 3, input_size[0], input_size[1])
             x = self.pool(F.relu(self.conv1(x)))
             x = self.pool(F.relu(self.conv2(x)))
             return x.numel()  # Total number of elements in the tensor
@@ -64,13 +71,15 @@ class Net(nn.Module):
         return x
 
 
-def train(traindir: Path, epochs: int, net: Net, settings: ModelSettings, transform):
+def train(traindir: Path, net: Net, settings: ModelSettings):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(
         net.parameters(), lr=settings.learning_rate, momentum=settings.momentum
     )
 
-    trainset = torchvision.datasets.ImageFolder(str(traindir), transform=transform)
+    trainset = torchvision.datasets.ImageFolder(
+        str(traindir), transform=settings.transform
+    )
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=4, shuffle=True, num_workers=2
     )
@@ -78,7 +87,8 @@ def train(traindir: Path, epochs: int, net: Net, settings: ModelSettings, transf
     net.class_to_idx = trainset.class_to_idx
     net.idx_to_class = {v: k for k, v in net.class_to_idx.items()}
 
-    for epoch in range(epochs):  # loop over the dataset multiple times
+    for epoch in range(settings.epochs):  # loop over the dataset multiple times
+        print(f"Running epoch {epoch}...", file=sys.stderr)
 
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
@@ -102,16 +112,21 @@ def train(traindir: Path, epochs: int, net: Net, settings: ModelSettings, transf
             #         file=sys.stderr,
             #     )
             #     running_loss = 0.0
+        print(f"Finished epoch {epoch}, Loss: {running_loss}", file=sys.stderr)
 
     print("Finished Training", file=sys.stderr)
 
 
-def test(testdir: Path, net: Net, transform) -> Tuple[List[int], List[int]]:
+def test(
+    testdir: Path, net: Net, settings: ModelSettings
+) -> Tuple[List[int], List[int]]:
     """
     Runs the model on the testdir with the transform.
     Returns a tuple of the form (labels, predictions).
     """
-    testset = torchvision.datasets.ImageFolder(str(testdir), transform=transform)
+    testset = torchvision.datasets.ImageFolder(
+        str(testdir), transform=settings.transform
+    )
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=4, shuffle=False, num_workers=2
     )
@@ -138,8 +153,8 @@ def test(testdir: Path, net: Net, transform) -> Tuple[List[int], List[int]]:
     return (labels, predictions)
 
 
-def evaluate_image(net: Net, image: Image, transform: Callable) -> int:
-    transformed = transform(image).unsqueeze(0)
+def evaluate_image(net: Net, image: Image, settings: ModelSettings) -> int:
+    transformed = settings.transform(image).unsqueeze(0)
     output = net(transformed)
     print(output.data)
     _, label = torch.max(output.data, 1)
@@ -152,25 +167,11 @@ def run_net_test(
     testdir: Path,
     save_path: Optional[Path],
 ) -> TestResults:
-    image_size, epochs = (
-        settings.image_size,
-        settings.epochs,
-    )
-
-    transform = transforms.Compose(
-        [
-            transforms.ToImage(),
-            transforms.ToDtype(torch.float32, scale=True),
-            transforms.Resize((image_size, image_size)),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        ]
-    )
-
     net = Net(settings)
-    train(traindir, epochs, net, settings, transform)
+    train(traindir, net, settings)
     if save_path:
         torch.save(net.state_dict(), str(save_path))
-    labels, predictions = test(testdir, net, transform)
+    labels, predictions = test(testdir, net, settings)
     labels = list(map(bool, labels))
     predictions = list(map(bool, predictions))
     return TestResults(labels, predictions)
