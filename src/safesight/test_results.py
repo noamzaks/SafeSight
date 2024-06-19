@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import List
 
-from torch.utils.data import Dataset
-
 
 @dataclass
 class TestResults:

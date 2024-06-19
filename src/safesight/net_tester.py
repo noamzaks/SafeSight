@@ -3,11 +3,13 @@ import torchvision.transforms.v2 as v2
 import torch
 from sys import stderr
 from typing import List
-from safesight.model_api import TestResults
-from safesight.our_model import Net, evaluate_image, run_net_test, ModelSettings, test
+from safesight.our_model import run_net_test, ModelSettings
 
 
-def TRANSFORM_OF_SIZE(size):
+def TRANSFORM_OF_SIZE(size: int):
+    """
+    Returns a pytorch transform function that scales images to `size`x`size`.
+    """
     return v2.Compose(
         [
             v2.ToImage(),
@@ -49,6 +51,16 @@ def net_tester(
     test_dir: Path,
     model_dir: Path = Path("./models"),
 ):
+    """
+    Train and test models with different parameters.
+    `traindir` and `testdir` should be organized like so:
+        traindir/accident/image1.jpg
+                         /image2.jpg
+                         /...
+        traindir/nonaccident/image1.jpg
+                            /image2.jpg
+                            /...
+    """
     model_dir.mkdir(parents=True, exist_ok=True)
 
     for i, setting in enumerate(settings):

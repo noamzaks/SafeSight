@@ -11,6 +11,10 @@ SAVE_TEMP_FRAMES = True
 
 
 class SinglePipelineAnalyzer(Analyzer):
+    """
+    An Analyzer that employs a single Pipeline in its evaluation.
+    """
+
     def __init__(
         self, pipeline: Type[Pipeline], *pipeline_args, **pipeline_kwargs
     ) -> None:

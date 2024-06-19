@@ -5,6 +5,10 @@ from PIL.Image import Image
 
 
 class Analyzer:
+    """
+    The final product, that runs on a Camera and checks for accidents.
+    """
+
     def __init__(self) -> None:
         pass
 

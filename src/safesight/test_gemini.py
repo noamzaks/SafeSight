@@ -6,7 +6,7 @@ import PIL.Image
 import click
 import google.generativeai as genai
 
-from safesight.model_api import TestResults
+from safesight.test_results import TestResults
 from safesight.cli import cli
 
 # GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']
@@ -24,8 +24,8 @@ def gemini():
 @click.argument("question", type=str)
 @click.option("-v", "--verbose", is_flag=True, help="click.echo verbose output")
 def test_dir(path, question, verbose):
-    """ Test the Gemini model on a directory of images. Outputs the number of 'yes' and 'no' answers.
-        Use the GOOGLE_API_KEY environment variable to set the API key."""
+    """Test the Gemini model on a directory of images. Outputs the number of 'yes' and 'no' answers.
+    Use the GOOGLE_API_KEY environment variable to set the API key."""
 
     if os.environ.get("GOOGLE_API_KEY") is None:
         click.echo("GOOGLE_API_KEY environment variable isn't set.", file=sys.stderr)

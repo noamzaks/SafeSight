@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import sys
 from pathlib import Path
-from typing import Callable, Dict, Optional, Tuple, List
+from typing import Callable, Dict, Optional, Tuple, List, Union
 from PIL.Image import Image
 import PIL.Image
 import torch.nn.functional as F
@@ -9,7 +9,6 @@ import torch.nn as nn
 import torch
 import torch.utils.data
 import torchvision
-import torchvision.transforms.v2 as transforms
 import torch.optim as optim
 
 
@@ -17,7 +16,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from safesight.model_api import TestResults
+from safesight.test_results import TestResults
 
 
 @dataclass
@@ -30,11 +29,22 @@ class ModelSettings:
 
 
 class Net(nn.Module):
+    """
+    A Neural Network to process images.
+    To use, run something like:
+        `
+        net = Net(settings)
+        outputs = net(transformed_inputs)
+        `
+    Where `transformed_inputs` are a tensor of inputs that went through the
+    transform function the network was trained with.
+    """
+
     def __init__(self, settings: ModelSettings):
         super(Net, self).__init__()
         self.settings = settings
 
-        self.idx_to_class: Dict[str, int] = {}
+        self.idx_to_class: Dict[int, str] = {}
         self.class_to_idx: Dict[str, int] = {}
 
         self.conv1 = nn.Conv2d(3, settings.internal_layer_size, 5)
@@ -42,13 +52,13 @@ class Net(nn.Module):
         self.conv2 = nn.Conv2d(settings.internal_layer_size, 16, 5)
 
         # Calculate the size of the feature map after the convolutional and pooling layers
-        conv_output_size = self._get_conv_output(self.get_image_size())
+        conv_output_size = self._get_conv_output(self._get_image_size())
 
         self.fc1 = nn.Linear(conv_output_size, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 2)
 
-    def get_image_size(self) -> Tuple[int, int]:
+    def _get_image_size(self) -> Tuple[int, int]:
         dummy_image = PIL.Image.new("RGB", (1, 1))
         transformed_image = self.settings.transform(dummy_image)
         return transformed_image.size()[1:3]
@@ -70,15 +80,41 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
+    def evaluate_image(self, image: Image) -> Union[str, int]:
+        """
+        Evaluate an image with the network.
+        Returns the label it predicts for the image, or the numerical label
+        if it can't find the matching string.
+        """
+        transformed = self.settings.transform(image).unsqueeze(0)
+        output = self(transformed)
+        _, label = torch.max(output.data, 1)
+        label = int(label)
 
-def train(traindir: Path, net: Net, settings: ModelSettings):
+        try:
+            return self.idx_to_class[label]
+        except KeyError:
+            return label
+
+
+def train(traindir: Path, net: Net):
+    """
+    Train a net on the dataset at `traindir`, which is set up like so:
+        traindir/accident/image1.jpg
+                         /image2.jpg
+                         /...
+        traindir/nonaccident/image1.jpg
+                            /image2.jpg
+                            /...
+    """
+
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(
-        net.parameters(), lr=settings.learning_rate, momentum=settings.momentum
+        net.parameters(), lr=net.settings.learning_rate, momentum=net.settings.momentum
     )
 
     trainset = torchvision.datasets.ImageFolder(
-        str(traindir), transform=settings.transform
+        str(traindir), transform=net.settings.transform
     )
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=4, shuffle=True, num_workers=2
@@ -87,7 +123,7 @@ def train(traindir: Path, net: Net, settings: ModelSettings):
     net.class_to_idx = trainset.class_to_idx
     net.idx_to_class = {v: k for k, v in net.class_to_idx.items()}
 
-    for epoch in range(settings.epochs):  # loop over the dataset multiple times
+    for epoch in range(net.settings.epochs):  # loop over the dataset multiple times
         print(f"Running epoch {epoch}...", file=sys.stderr)
 
         running_loss = 0.0
@@ -117,15 +153,14 @@ def train(traindir: Path, net: Net, settings: ModelSettings):
     print("Finished Training", file=sys.stderr)
 
 
-def test(
-    testdir: Path, net: Net, settings: ModelSettings
-) -> Tuple[List[int], List[int]]:
+def test(testdir: Path, net: Net) -> Tuple[List[int], List[int]]:
     """
-    Runs the model on the testdir with the transform.
+    Runs the model on the testdir with the net's transform.
     Returns a tuple of the form (labels, predictions).
+    `testdir` should be organized like training directories are.
     """
     testset = torchvision.datasets.ImageFolder(
-        str(testdir), transform=settings.transform
+        str(testdir), transform=net.settings.transform
     )
     testloader = torch.utils.data.DataLoader(
         testset, batch_size=4, shuffle=False, num_workers=2
@@ -153,14 +188,6 @@ def test(
     return (labels, predictions)
 
 
-def evaluate_image(net: Net, image: Image, settings: ModelSettings) -> int:
-    transformed = settings.transform(image).unsqueeze(0)
-    output = net(transformed)
-    print(output.data)
-    _, label = torch.max(output.data, 1)
-    return int(label)
-
-
 def run_net_test(
     settings: ModelSettings,
     traindir: Path,
@@ -168,10 +195,10 @@ def run_net_test(
     save_path: Optional[Path],
 ) -> TestResults:
     net = Net(settings)
-    train(traindir, net, settings)
+    train(traindir, net)
     if save_path:
         torch.save(net.state_dict(), str(save_path))
-    labels, predictions = test(testdir, net, settings)
+    labels, predictions = test(testdir, net)
     labels = list(map(bool, labels))
     predictions = list(map(bool, predictions))
     return TestResults(labels, predictions)
