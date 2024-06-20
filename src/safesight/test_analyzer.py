@@ -13,9 +13,12 @@ import cv2
 from safesight.analyzer import Analyzer
 from safesight.blip_pipeline import BlipPipeline
 from safesight.cli import cli
+from safesight.net_tester import TRANSFORM_OF_SIZE
+from safesight.our_model import ModelSettings
 from safesight.single_pipeline_analyzer import SinglePipelineAnalyzer
 from safesight.file_camera import FileCamera
 from safesight.pipeline import Evaluation
+from safesight.our_model_pipeline import OurModelPipeline
 
 DEBUG = True
 
@@ -38,7 +41,7 @@ class AnalyzerTestResults:
 # @click.option("-s", "--sampling_step", default=100)
 # @click.option("-l", "--frame_limit", default=100)
 # @click.option("-q", "--quiet", default=False)
-def test_analyzer(
+def test_model_analyzer(
     file: str,
     sampling_step: int = 100,
     frame_limit: int = 100,
@@ -161,7 +164,7 @@ def run_tests(test_file: str, quiet: bool = False):
             analyzer_type, analyzer_args = analyzer_dict[analyzer_profile]
             if not quiet:
                 print(f"Running {analyzer_profile} on {file}...", file=sys.stderr)
-            result = test_analyzer(
+            result = test_model_analyzer(
                 file,
                 int(sampling_step),
                 int(frame_limit),
@@ -184,3 +187,27 @@ def run_tests(test_file: str, quiet: bool = False):
                     f"{result.average_time_taken:.3f}",
                 ]
             )
+
+
+def test_model_analyzer(
+    video_path: Path, model_path: Path, model_settings: ModelSettings
+):
+    analyzer = Analyzer()
+    camera = FileCamera(video_path)
+    pipeline = OurModelPipeline(model_path, model_settings)
+    analyzer.add_pipeline(pipeline)
+    analyzer.run_analyzer(camera, 30)
+
+
+if __name__ == "__main__":
+    video_path = Path("data/videos/5pGjkv5lZXE.mp4")
+    model_path = Path("models/model0.pth")
+    settings = ModelSettings(
+        internal_layer_size=6,
+        epochs=3,
+        learning_rate=0.001,
+        momentum=0.9,
+        transform=TRANSFORM_OF_SIZE(500),
+    )
+
+    test_model_analyzer(video_path, model_path, settings)

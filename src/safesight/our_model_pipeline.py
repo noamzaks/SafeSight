@@ -1,5 +1,6 @@
+from datetime import datetime
+from sys import stderr
 from pathlib import Path
-from typing import Optional
 from safesight.pipeline import Pipeline, Evaluation
 from safesight.our_model import Net, ModelSettings
 from PIL.Image import Image
@@ -16,12 +17,13 @@ class OurModelPipeline(Pipeline):
         self.net.load_state_dict(torch.load(str(model_path)))
         self.net.train(False)
 
-    def process_image(self, image: Image) -> Optional[Evaluation]:
+    def process_image(self, image: Image) -> Evaluation:
+        print("Got image in process_image", file=stderr)
         label = self.net.evaluate_image(image)
         if label == "accident":
-            self.last_evaluation = Evaluation(True)
+            self.last_evaluation = Evaluation(True, timestamp=datetime.now())
         else:
-            self.last_evaluation = Evaluation(False)
+            self.last_evaluation = Evaluation(False, timestamp=datetime.now())
 
         return self.last_evaluation
 

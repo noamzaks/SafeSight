@@ -34,6 +34,7 @@ class Net(nn.Module):
     To use, run something like:
         `
         net = Net(settings)
+        train(net, traindir)
         outputs = net(transformed_inputs)
         `
     Where `transformed_inputs` are a tensor of inputs that went through the
@@ -86,7 +87,11 @@ class Net(nn.Module):
         Returns the label it predicts for the image, or the numerical label
         if it can't find the matching string.
         """
+        print("in evaluate_image")
+        print(self.settings.transform)
+        print(image)
         transformed = self.settings.transform(image).unsqueeze(0)
+        print(transformed, file=sys.stderr)
         output = self(transformed)
         _, label = torch.max(output.data, 1)
         label = int(label)
