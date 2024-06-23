@@ -13,8 +13,6 @@ import torch.optim as optim
 
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 from safesight.test_results import TestResults
 

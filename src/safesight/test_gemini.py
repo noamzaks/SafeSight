@@ -6,7 +6,6 @@ import PIL.Image
 import click
 import google.generativeai as genai
 
-from safesight.test_results import TestResults
 from safesight.cli import cli
 
 # GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']

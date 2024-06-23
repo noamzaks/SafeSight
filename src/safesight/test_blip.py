@@ -1,5 +1,4 @@
 import pathlib
-import sys
 
 import PIL.Image
 import click

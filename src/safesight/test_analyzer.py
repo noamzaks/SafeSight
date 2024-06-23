@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import csv
 from pathlib import Path
-import pathlib
 import sys
 import time
 from typing import Any, Dict, List, Tuple, Type

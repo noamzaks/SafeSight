@@ -26,7 +26,7 @@ def cli():
 
 if is_python_at_least((3, 10)):
     # noinspection PyUnresolvedReferences
-    import safesight.dataset_downloader
+    import safesight.dataset_downloader # noqa: F401
 else:
 
     @cli.command()
@@ -39,7 +39,7 @@ else:
 
 if is_python_at_least((3, 9)):
     # noinspection PyUnresolvedReferences
-    import safesight.test_gemini
+    import safesight.test_gemini # noqa: F401
 else:
 
     @cli.command()
@@ -52,8 +52,8 @@ else:
 
 if is_python_exactly("3.8"):
     # noinspection PyUnresolvedReferences
-    import safesight.test_analyzer
-    import safesight.test_blip
+    import safesight.test_analyzer # noqa: F401
+    import safesight.test_blip # noqa: F401
 else:
 
     @cli.command()
@@ -66,8 +66,8 @@ else:
 
 if is_python_exactly("3.8"):
     # noinspection PyUnresolvedReferences
-    import safesight.videomae
-    import safesight.yolo
+    import safesight.videomae # noqa: F401
+    import safesight.yolo # noqa: F401
 else:
 
     @cli.command()

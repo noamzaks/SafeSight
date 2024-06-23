@@ -1,6 +1,6 @@
 from pathlib import Path
 import time
-from typing import Optional, Tuple
+from typing import Optional
 
 from PIL import Image as Im
 from PIL.Image import Image

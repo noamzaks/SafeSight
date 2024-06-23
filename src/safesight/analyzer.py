@@ -1,15 +1,12 @@
 from dataclasses import dataclass
-import multiprocessing
 import queue
-import datetime
 import time
 from multiprocessing import Process, Queue
-from typing import Callable, NamedTuple, Tuple, List
+from typing import List
 
 import numpy
 from safesight.camera import Camera
 from safesight.pipeline import Evaluation, Pipeline
-from PIL.Image import Image
 
 
 @dataclass

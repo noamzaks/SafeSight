@@ -41,7 +41,7 @@ def download(name, dest):
 
     os.remove(f"{dest}.zip")
 
-    click.echo(f"Done!")
+    click.echo("Done!")
 
 
 def get_download_url(croissant_url: str) -> str | None:

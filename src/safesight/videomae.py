@@ -9,7 +9,6 @@ import torch
 import numpy as np
 
 from transformers import AutoImageProcessor, VideoMAEForVideoClassification
-from huggingface_hub import hf_hub_download
 
 from safesight.cli import cli
 

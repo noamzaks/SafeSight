@@ -2,8 +2,6 @@ from typing import Union, List
 
 from ultralytics import YOLO
 from pathlib import Path
-import re
-import click
 
 from safesight.cli import cli
 

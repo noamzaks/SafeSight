@@ -1,11 +1,9 @@
 from sys import stderr
-from typing import Optional
 from PIL.Image import Image
 import PIL.Image
 from dataclasses import dataclass
 from multiprocessing import Queue
 from datetime import datetime
-import numpy as np
 
 
 @dataclass
