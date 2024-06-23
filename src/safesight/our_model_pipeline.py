@@ -1,3 +1,4 @@
+import multiprocessing
 from datetime import datetime
 from sys import stderr
 from pathlib import Path
@@ -18,8 +19,8 @@ class OurModelPipeline(Pipeline):
         self.net.train(False)
 
     def process_image(self, image: Image) -> Evaluation:
-        print("Got image in process_image", file=stderr)
-        label = self.net.evaluate_image(image)
+        print(f"[{multiprocessing.current_process().pid}] Got image in process_image", file=stderr)
+        label = self.net.evaluate_image(image) # todo: for now the code hangs here
         if label == "accident":
             self.last_evaluation = Evaluation(True, timestamp=datetime.now())
         else:

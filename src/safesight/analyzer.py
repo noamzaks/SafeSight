@@ -1,86 +1,80 @@
-from dataclasses import dataclass
-import multiprocessing
+import multiprocessing as mp
 import queue
-import datetime
 import time
-from multiprocessing import Process, Queue
-from typing import Callable, NamedTuple, Tuple, List
+from sys import stderr
+from typing import List
 
 import numpy
+
 from safesight.camera import Camera
 from safesight.pipeline import Evaluation, Pipeline
-from PIL.Image import Image
-
-
-@dataclass
-class PipelineProcess:
-    pipeline: Pipeline
-    image_queue: Queue
-    evaluation_queue: Queue
-    process: Process
 
 
 class Analyzer:
     """
     The final product, that runs on a Camera and checks for accidents.
     """
+    pipelines: List[Pipeline]
+
+    # image_queue: mp.Queue
+    # evaluation_queue: mp.Queue
 
     def __init__(self) -> None:
-        self.pipelines: List[PipelineProcess] = []
+        self.pipelines = []
 
-    def run_analyzer(self, camera: Camera, evaluations_per_second: int):
+    def run_analyzer(self, camera: Camera, evaluations_per_second: int, *, num_processes: int = mp.cpu_count()):
         """
-        Runs the analyzer on a given Camera. Calls `evaluation_callback` when an
-        evaluation is reached.
+        Runs the analyzer on a given Camera.
+        Analyses in all pipelines, uses up to *num_processes* processes.
 
         To run on a file, see safesight.file_camera
         """
-        frame_interval = 1 / float(evaluations_per_second)
-        frames_so_far = 0
-        while True:
-            time_started = time.time()
-            image = camera.get_image()
-            image_array = numpy.array(image)
+        print(f"Running analyzer with {num_processes} processes and {len(self.pipelines)} pipelines", file=stderr)
+        with mp.Pool(num_processes) as pool:
+            frame_interval = 1 / float(evaluations_per_second)
+            frames_so_far = 0
+            while True:
+                time_started = time.time()
+                image = camera.get_image()
+                image_array = numpy.array(image)
 
-            for pipeline in self.pipelines:
-                # print(f"Put {image} in pipelines")
-                pipeline.image_queue.put(image_array)
+                # for pipeline in self.pipelines:
+                #     # print(f"Put {image} in pipelines")
+                #     pipeline.image_queue.put(image_array)
 
-            for pipeline in self.pipelines:
-                while True:
-                    try:
-                        evaluation = pipeline.evaluation_queue.get(timeout=0.01)
-                    except queue.Empty:
-                        # print("Nothing in queue")
-                        break
+                # for pipeline in self.pipelines:
+                #     while True:
+                #         try:
+                #             evaluation = pipeline.evaluation_queue.get(timeout=0.01)
+                #         except queue.Empty:
+                #             # print("Nothing in queue")
+                #             break
+                #
+                #         assert type(evaluation) == Evaluation
+                #
+                #         if evaluation.result:
+                #             pass
+                #         print(f"From {pipeline.pipeline}: {evaluation}")
 
-                    assert type(evaluation) == Evaluation
+                jobs = []
+                for pipeline in self.pipelines:
+                    jobs.append(pool.apply_async(pipeline.process_image, args=(image_array,),
+                                                 callback=lambda evaluation: print(f"From {pipeline}: {evaluation}"), error_callback=lambda e: print(e, file=f"Error: {stderr}")))
 
-                    if evaluation.result:
-                        pass
-                    print(f"From {pipeline.pipeline}: {evaluation}")
-
-            frames_so_far += 1
-            if frames_so_far % 100 == 0:
-                print(f"Frame #{frames_so_far}")
-            time_now = time.time()
-            time_to_sleep = frame_interval - (time_now - time_started)
-            if time_to_sleep > 0:
-                time.sleep(time_to_sleep)
+                [job.wait() for job in jobs] # todo: uncomment if want for all pipelines to finish before next frame
+                frames_so_far += 1
+                if frames_so_far % 100 == 0:
+                    print(f"Frame #{frames_so_far}")
+                time_now = time.time()
+                time_to_sleep = frame_interval - (time_now - time_started)
+                if time_to_sleep > 0:
+                    time.sleep(time_to_sleep)
 
     def add_pipeline(self, pipeline: Pipeline):
         """
-        Add a pipeline to the Analyzer and start running it.
+        Add a pipeline to the Analyzer.
         """
-        image_queue = Queue()
-        evaluation_queue = Queue()
-        process = Process(
-            target=pipeline.run_pipeline, args=(image_queue, evaluation_queue)
-        )
-        self.pipelines.append(
-            PipelineProcess(pipeline, image_queue, evaluation_queue, process)
-        )
-        process.start()
+        self.pipelines.append(pipeline)
 
     def stop_analysis(self) -> None:
         pass
