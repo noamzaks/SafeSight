@@ -35,3 +35,7 @@ Detecting Suspicious Events in Video.
 
 1. Make sure the virtual environment with the correct python version is activated (check installation steps 3, 4).
 2. Run ``` safesight <COMMAND> ``` (for help run ``` safesight --help ```).
+
+# TODO: Pick a CONSTANT location in the repository to have the dataset.
+# TODO: stop calling stuff "testers", we don't have tests, we are "collecting data". test_blip -> blip (answer specific image, run on dataset, etc.), net_tester -> custom_model
+# TODO(omri): add LLM prompt testing script

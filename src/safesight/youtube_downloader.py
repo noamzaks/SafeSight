@@ -1,6 +1,7 @@
-from pytube import Search
-import pytube
 from pathlib import Path
+
+import pytube
+from pytube import Search
 from pytube.innertube import _default_clients
 
 
@@ -22,7 +23,7 @@ def search_and_download(search_term: str, output_path: str):
 
 
 def main():
-    # To by pass age-restriction: (see https://stackoverflow.com/questions/75791765/how-to-download-videos-that-require-age-verification-with-pytube)
+    # To bypass age-restriction: (see https://stackoverflow.com/questions/75791765/how-to-download-videos-that-require-age-verification-with-pytube)
     _default_clients["ANDROID_MUSIC"] = _default_clients["ANDROID_CREATOR"]
 
     output_path = Path("./youtube_dataset/")

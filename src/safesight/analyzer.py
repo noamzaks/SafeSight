@@ -1,10 +1,11 @@
-from dataclasses import dataclass
+import multiprocessing as mp
 import queue
 import time
-from multiprocessing import Process, Queue
+from dataclasses import dataclass
 from typing import List
 
-import numpy
+import numpy as np
+
 from safesight.camera import Camera
 from safesight.pipeline import Evaluation, Pipeline
 
@@ -12,9 +13,9 @@ from safesight.pipeline import Evaluation, Pipeline
 @dataclass
 class PipelineProcess:
     pipeline: Pipeline
-    image_queue: Queue
-    evaluation_queue: Queue
-    process: Process
+    image_queue: mp.Queue
+    evaluation_queue: mp.Queue
+    process: mp.Process
 
 
 class Analyzer:
@@ -37,7 +38,7 @@ class Analyzer:
         while True:
             time_started = time.time()
             image = camera.get_image()
-            image_array = numpy.array(image)
+            image_array = np.array(image)
 
             for pipeline in self.pipelines:
                 # print(f"Put {image} in pipelines")
@@ -48,16 +49,20 @@ class Analyzer:
                     try:
                         evaluation = pipeline.evaluation_queue.get(timeout=0.01)
                     except queue.Empty:
-                        # print("Nothing in queue")
                         break
 
                     assert type(evaluation) == Evaluation
 
-                    if evaluation.result:
-                        pass
+                    if not evaluation.result:
+                        continue
+                    """
+                    TODO: we want a view like they have - https://github.com/dolongbien/HumanBehaviorBKU
+                    For this, I think it will be useful to be able to dump the analyzer output in a CSV fashion (we don't need a fancy viewer)
+                    """
                     print(f"From {pipeline.pipeline}: {evaluation}")
 
             frames_so_far += 1
+            # TODO: change to evaluations_per_second or something like that
             if frames_so_far % 100 == 0:
                 print(f"Frame #{frames_so_far}")
             time_now = time.time()
@@ -69,9 +74,9 @@ class Analyzer:
         """
         Add a pipeline to the Analyzer and start running it.
         """
-        image_queue = Queue()
-        evaluation_queue = Queue()
-        process = Process(
+        image_queue = mp.Queue()
+        evaluation_queue = mp.Queue()
+        process = mp.Process(
             target=pipeline.run_pipeline, args=(image_queue, evaluation_queue)
         )
         self.pipelines.append(
@@ -80,4 +85,5 @@ class Analyzer:
         process.start()
 
     def stop_analysis(self) -> None:
+        # TODO: implement this, although it's not very important
         pass

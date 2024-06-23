@@ -1,18 +1,16 @@
-from dataclasses import dataclass
 import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Dict, Optional, Tuple, List, Union
-from PIL.Image import Image
+from typing import Callable, Dict, List, Optional, Tuple, Union
+
 import PIL.Image
-import torch.nn.functional as F
-import torch.nn as nn
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 import torch.utils.data
 import torchvision
-import torch.optim as optim
-
-
-import torch
+from PIL.Image import Image
 
 from safesight.test_results import TestResults
 
@@ -85,11 +83,11 @@ class Net(nn.Module):
         Returns the label it predicts for the image, or the numerical label
         if it can't find the matching string.
         """
-        print("in evaluate_image")
-        print(self.settings.transform)
-        print(image)
+        # print("in evaluate_image")
+        # print(self.settings.transform)
+        # print(image)
         transformed = self.settings.transform(image).unsqueeze(0)
-        print(transformed, file=sys.stderr)
+        # print(transformed, file=sys.stderr)
         output = self(transformed)
         _, label = torch.max(output.data, 1)
         label = int(label)
