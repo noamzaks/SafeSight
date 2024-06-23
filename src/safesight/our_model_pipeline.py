@@ -1,12 +1,9 @@
 from datetime import datetime
 from pathlib import Path
-from sys import stderr
 
 import torch
 from PIL.Image import Image
 
-from safesight.our_model import ModelSettings, Net
-from safesight.pipeline import Evaluation, Pipeline
 from safesight.our_model import ModelSettings, Net
 from safesight.pipeline import Evaluation, Pipeline
 

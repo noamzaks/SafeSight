@@ -1,13 +1,5 @@
-import csv
-import sys
-import time
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Type
 
-import click
-import cv2
-from PIL.Image import Image
 
 from safesight.analyzer import Analyzer
 from safesight.cli import cli
@@ -15,8 +7,6 @@ from safesight.file_camera import FileCamera
 from safesight.net_tester import TRANSFORM_OF_SIZE
 from safesight.our_model import ModelSettings
 from safesight.our_model_pipeline import OurModelPipeline
-from safesight.pipeline import Evaluation
-from safesight.single_pipeline_analyzer import SinglePipelineAnalyzer
 
 
 @cli.group()
