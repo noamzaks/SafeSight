@@ -12,6 +12,8 @@ from typing import List, Optional, Dict
 from safesight.camera import Camera
 from safesight.pipeline import Pipeline
 
+UINT_BITMASK = 0xffffffff
+
 
 class MemoryControl(Enum):
     """
@@ -21,13 +23,13 @@ class MemoryControl(Enum):
     """
 
     # Frame terminators:
-    FRAME_END = (1 >> 8) & -1
-    FRAME_NOT_READY = (1 >> 8) & -2
+    FRAME_END = 0xff & -1
+    FRAME_NOT_READY = 0xff & -2
 
     # Control bytes:
-    WAIT = (1 >> 32) & -1
-    RESET_INDEX = (1 >> 32) & -2
-    CLOSE = (1 >> 32) & -3
+    WAIT = UINT_BITMASK & -1
+    RESET_INDEX = UINT_BITMASK & -2
+    CLOSE = UINT_BITMASK & -3
 
 
 class Analyzer:
@@ -81,16 +83,18 @@ class Analyzer:
             self.memory.buf[0:4] = struct.pack(">I", MemoryControl.WAIT.value)
 
             evaluation_queues = {pipeline: Queue() for pipeline in self.pipelines}
-            self.results_proc = Process(target=self._results_process, args=(evaluation_queues,))
+            self.results_proc = Process(name='eval', target=self._results_process, args=(evaluation_queues,))
             self.results_proc.start()
 
             for pipeline in self.pipelines:
-                p = Process(target=pipeline.run_pipeline, kwargs={"shared_memory_name": shared_memory_name,
-                                                                  "evaluation_queue": evaluation_queues[pipeline]})
+                p = Process(name=f'pipeline-{id(pipeline)}', target=pipeline.run_pipeline,
+                            kwargs={"shared_memory_name": shared_memory_name,
+                                    "evaluation_queue": evaluation_queues[pipeline]})
                 self.pipeline_procs.append(p)
                 p.start()
 
-            self.camera_proc = Process(target=self._camera_process, args=(camera, evaluations_per_second),
+            self.camera_proc = Process(name='camera', target=self._camera_process,
+                                       args=(camera, evaluations_per_second),
                                        kwargs={"shared_memory_name": shared_memory_name})
             self.camera_proc.start()
 
@@ -103,13 +107,15 @@ class Analyzer:
 
     @staticmethod
     def _camera_process(camera: Camera, evaluations_per_second: int, *, shared_memory_name: str):
+        print(f"[{mp.current_process().pid}] Starting camera process.", file=stderr)
         mem = None
         index = 0
+        print_step = round(evaluations_per_second * 5 / 100) * 100
         try:
             mem = SharedMemory(name=shared_memory_name)
             buff = mem.buf
 
-            frame_num = -1
+            frame_num = 0
             buff[index:index + 4] = struct.pack(">I", MemoryControl.WAIT.value)
 
             last_time = 0
@@ -126,6 +132,8 @@ class Analyzer:
 
                 last_time = t
                 frame_num += 1
+                if frame_num % print_step == 0:
+                    print(f"[{mp.current_process().pid}] CAMERA: Frame {frame_num}.", file=stderr)
 
                 size = img.size
                 frame_len = size[0] * size[1] * 4

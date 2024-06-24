@@ -11,8 +11,6 @@ from typing import Tuple
 import PIL.Image
 from PIL.Image import Image
 
-from safesight.analyzer import MemoryControl as MemCtrl
-
 
 @dataclass
 class Evaluation:
@@ -47,6 +45,7 @@ class Pipeline(ABC):
         pass
 
     def run_pipeline(self, *, shared_memory_name: str, evaluation_queue: mp.SimpleQueue):
+        from safesight.analyzer import MemoryControl as MemCtrl
         print(f"[{mp.current_process().pid}] Starting pipeline {self}.", file=stderr)
 
         self.prepare()

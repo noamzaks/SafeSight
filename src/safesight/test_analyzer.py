@@ -1,5 +1,5 @@
+import signal
 from pathlib import Path
-
 
 from safesight.analyzer import Analyzer
 from safesight.cli import cli
@@ -16,13 +16,15 @@ def analyzer():
 
 
 def test_model_analyzer(
-    video_path: Path, model_path: Path, model_settings: ModelSettings
+        video_path: Path, model_path: Path, model_settings: ModelSettings
 ):
     analyzer = Analyzer()
     camera = FileCamera(video_path)
     pipeline = OurModelPipeline(model_path, model_settings)
     analyzer.add_pipeline(pipeline)
-    analyzer.run_analyzer(camera, 30)
+    analyzer.start_analyzer(camera, 30, memory_size=1 << 30)  # 1 GB of shared memory
+    signal.signal(signal.SIGINT, lambda _, __: analyzer.stop_analysis())
+    signal.pause()
 
 
 if __name__ == "__main__":
