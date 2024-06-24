@@ -4,7 +4,7 @@ from pathlib import Path
 import torch
 from PIL.Image import Image
 
-from safesight.custom_model import ModelSettings, Net
+from safesight.custom_model import Net
 from safesight.pipeline import Evaluation, Pipeline
 
 
