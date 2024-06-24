@@ -1,12 +1,13 @@
-import signal
 from pathlib import Path
+import signal
+
+import click
 
 from safesight.analyzer import Analyzer
 from safesight.cli import cli
+from safesight.custom_model_pipeline import CustomModelPipeline
 from safesight.file_camera import FileCamera
-from safesight.net_tester import TRANSFORM_OF_SIZE
-from safesight.our_model import ModelSettings
-from safesight.our_model_pipeline import OurModelPipeline
+from safesight.model_settings import ModelSettings, TRANSFORM_OF_SIZE
 
 
 @cli.group()
@@ -15,12 +16,14 @@ def analyzer():
     pass
 
 
-def test_model_analyzer(
-        video_path: Path, model_path: Path, model_settings: ModelSettings
-):
+@analyzer.command()
+@click.option(
+    "--video_path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
+)
+def run_analyzer(video_path: Path, model_path: Path):
     analyzer = Analyzer()
     camera = FileCamera(video_path)
-    pipeline = OurModelPipeline(model_path, model_settings)
+    pipeline = CustomModelPipeline(model_path)
     analyzer.add_pipeline(pipeline)
     analyzer.start_analyzer(camera, 30, memory_size=1 << 30)  # 1 GB of shared memory
     signal.signal(signal.SIGINT, lambda _, __: analyzer.stop_analysis())
@@ -38,4 +41,4 @@ if __name__ == "__main__":
         transform=TRANSFORM_OF_SIZE(500),
     )
 
-    test_model_analyzer(video_path, model_path, settings)
+    run_analyzer(video_path, model_path, settings)

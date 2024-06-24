@@ -4,11 +4,11 @@ from pathlib import Path
 import torch
 from PIL.Image import Image
 
-from safesight.our_model import ModelSettings, Net
+from safesight.custom_model import ModelSettings, Net
 from safesight.pipeline import Evaluation, Pipeline
 
 
-class OurModelPipeline(Pipeline):
+class CustomModelPipeline(Pipeline):
     """
     A pipeline that runs a model we trained, stored on disk as a `.pth` file.
     """
@@ -19,8 +19,9 @@ class OurModelPipeline(Pipeline):
     def cleanup(self):
         pass
 
-    def __init__(self, model_path: Path, model_settings: ModelSettings) -> None:
-        self.net = Net(model_settings)
+    def __init__(self, model_path: Path) -> None:
+        self.net = Net()
+        # load_state_dict also loads the ModelSettings, which are saved to disk.
         self.net.load_state_dict(torch.load(str(model_path)))
         self.net.train(False)
 

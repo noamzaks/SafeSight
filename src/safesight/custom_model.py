@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import PIL.Image
+import click
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -13,15 +14,9 @@ import torchvision
 from PIL.Image import Image
 
 from safesight.test_results import TestResults
-
-
-@dataclass
-class ModelSettings:
-    internal_layer_size: int
-    epochs: int
-    learning_rate: float
-    momentum: float
-    transform: Callable
+from safesight.cli import cli
+from safesight.model_settings import settings as custom_model_settings
+from safesight.model_settings import ModelSettings
 
 
 class Net(nn.Module):
@@ -33,27 +28,22 @@ class Net(nn.Module):
         train(net, traindir)
         outputs = net(transformed_inputs)
         `
+
     Where `transformed_inputs` are a tensor of inputs that went through the
     transform function the network was trained with.
+
+    To load a pre-trained model:
+        `
+        net = Net()
+        net.load_state_dict(torch.load(model_path))
+        `
+    Which also loads the ModelSettings.
     """
 
-    def __init__(self, settings: ModelSettings):
+    def __init__(self, settings: Optional[ModelSettings] = None):
         super(Net, self).__init__()
-        self.settings = settings
-
-        self.idx_to_class: Dict[int, str] = {}
-        self.class_to_idx: Dict[str, int] = {}
-
-        self.conv1 = nn.Conv2d(3, settings.internal_layer_size, 5)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(settings.internal_layer_size, 16, 5)
-
-        # Calculate the size of the feature map after the convolutional and pooling layers
-        conv_output_size = self._get_conv_output(self._get_image_size())
-
-        self.fc1 = nn.Linear(conv_output_size, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 2)
+        if settings:
+            self.apply_settings(settings)
 
     def _get_image_size(self) -> Tuple[int, int]:
         dummy_image = PIL.Image.new("RGB", (1, 1))
@@ -96,6 +86,29 @@ class Net(nn.Module):
             return self.idx_to_class[label]
         except KeyError:
             return label
+
+    def apply_settings(self, settings: ModelSettings):
+        self.settings = settings
+
+        self.idx_to_class: Dict[int, str] = {}
+        self.class_to_idx: Dict[str, int] = {}
+
+        self.conv1 = nn.Conv2d(3, settings.internal_layer_size, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(settings.internal_layer_size, 16, 5)
+
+        # Calculate the size of the feature map after the convolutional and pooling layers
+        conv_output_size = self._get_conv_output(self._get_image_size())
+
+        self.fc1 = nn.Linear(conv_output_size, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 2)
+
+    def get_extra_state(self) -> ModelSettings:
+        return self.settings
+
+    def set_extra_state(self, state: ModelSettings) -> None:
+        self.apply_settings(state)
 
 
 def train(traindir: Path, net: Net):
@@ -189,7 +202,33 @@ def test(testdir: Path, net: Net) -> Tuple[List[int], List[int]]:
     return (labels, predictions)
 
 
-def run_net_test(
+def run_with_settings_list(
+    settings: List[ModelSettings],
+    train_dir: Path,
+    test_dir: Path,
+    model_dir: Path = Path("./models"),
+):
+    """
+    Train and test models with different parameters.
+    `traindir` and `testdir` should be organized like so:
+        traindir/accident/image1.jpg
+                         /image2.jpg
+                         /...
+        traindir/nonaccident/image1.jpg
+                            /image2.jpg
+                            /...
+    """
+    model_dir.mkdir(parents=True, exist_ok=True)
+
+    for i, setting in enumerate(settings):
+        print(f"Running test {i}, with settings {setting}...", file=sys.stderr)
+        results = run_with_settings(
+            setting, train_dir, test_dir, model_dir / Path(f"model{i}.pth")
+        )
+        print(f"{i}: Settings: {setting}; Results: {results}")
+
+
+def run_with_settings(
     settings: ModelSettings,
     traindir: Path,
     testdir: Path,
@@ -203,3 +242,56 @@ def run_net_test(
     labels = list(map(bool, labels))
     predictions = list(map(bool, predictions))
     return TestResults(labels, predictions)
+
+
+@cli.group()
+def custom_model():
+    """
+    Commands to train and run custom models.
+    """
+
+
+@custom_model.command()
+@click.option(
+    "--train-path",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False),
+    default=Path("data/train"),
+    show_default=True,
+)
+@click.option(
+    "--test-path",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False),
+    default=Path("data/test"),
+    show_default=True,
+)
+def train_and_run_image(train_path: Path, test_path: Path):
+    """
+    Train and test image classification models with different parameters, taken from
+    safesight.model_settings.
+    `test-path` and `test-path` should be directories organized like so:
+
+        train-path/accident/image1.jpg
+
+        train-path/nonaccident/image2.jpg
+
+        train-path/accident/...
+
+        test-path/accident/image1.jpg
+
+        test-path/nonaccident/image2.jpg
+
+        test-path/accident/...
+
+    Outputs results into STDOUT, and saves the models in ./models.
+
+    WARNING - Overwrites files at ./models/model0.pth, ./models/model1.pth, ...
+    """
+    model_dir = Path("./models")
+    model_dir.mkdir(parents=True, exist_ok=True)
+
+    for i, setting in enumerate(custom_model_settings):
+        print(f"Running test {i}, with settings {setting}...", file=sys.stderr)
+        results = run_with_settings(
+            setting, train_path, test_path, model_dir / Path(f"model{i}.pth")
+        )
+        print(f"{i}: Settings: {setting}; Results: {results}")
