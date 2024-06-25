@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 import time
 from typing import Optional
 
@@ -29,6 +30,15 @@ class FileCamera(Camera):
         If there was an error in handling the video (couldn't move video position, couldn't
         read frame) returns None.
         """
+
+        success, image = self.video.read()
+        if not success:
+            print("Failed to read image from video file", file=sys.stderr)
+            return None
+        color_converted = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        PIL_image = Im.fromarray(color_converted)
+        return PIL_image
+
         if self.start_time == 0:
             self.start()
 

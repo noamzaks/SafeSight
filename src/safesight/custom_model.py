@@ -41,6 +41,8 @@ class Net(nn.Module):
 
     def __init__(self, settings: Optional[ModelSettings] = None):
         super(Net, self).__init__()
+        self.class_to_idx: Dict[str, int] = {}
+        self.idx_to_class: Dict[int, str] = {}
         if settings:
             self.apply_settings(settings)
 
@@ -89,9 +91,6 @@ class Net(nn.Module):
     def apply_settings(self, settings: ModelSettings):
         self.settings = settings
 
-        self.idx_to_class: Dict[int, str] = {}
-        self.class_to_idx: Dict[str, int] = {}
-
         self.conv1 = nn.Conv2d(3, settings.internal_layer_size, 5)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(settings.internal_layer_size, 16, 5)
@@ -103,11 +102,13 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 2)
 
-    def get_extra_state(self) -> ModelSettings:
-        return self.settings
+    def get_extra_state(self) -> Tuple[ModelSettings, Dict, Dict]:
+        return (self.settings, self.class_to_idx, self.idx_to_class)
 
-    def set_extra_state(self, state: ModelSettings) -> None:
-        self.apply_settings(state)
+    def set_extra_state(self, state: Tuple[ModelSettings, Dict, Dict]) -> None:
+        self.apply_settings(state[0])
+        self.class_to_idx = state[1]
+        self.idx_to_class = state[2]
 
 
 def train(traindir: Path, net: Net):

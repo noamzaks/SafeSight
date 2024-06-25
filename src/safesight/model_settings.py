@@ -30,14 +30,14 @@ def TRANSFORM_OF_SIZE(size: int):
 settings: List[ModelSettings] = [
     ModelSettings(
         internal_layer_size=6,
-        epochs=3,
+        epochs=10,
         learning_rate=0.001,
         momentum=0.9,
         transform=TRANSFORM_OF_SIZE(500),
     ),
     ModelSettings(
-        internal_layer_size=32,
-        epochs=15,
+        internal_layer_size=6,
+        epochs=3,
         learning_rate=0.001,
         momentum=0.9,
         transform=TRANSFORM_OF_SIZE(500),

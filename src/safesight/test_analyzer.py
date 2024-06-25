@@ -18,14 +18,18 @@ def analyzer():
 
 @analyzer.command()
 @click.option(
-    "--video_path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
+    "--video-path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
+)
+@click.option(
+    "--model-path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
 )
 def run_analyzer(video_path: Path, model_path: Path):
     analyzer = Analyzer()
-    camera = FileCamera(video_path)
     pipeline = CustomModelPipeline(model_path)
     analyzer.add_pipeline(pipeline)
-    analyzer.start_analyzer(camera, 30, memory_size=1 << 30)  # 1 GB of shared memory
+    analyzer.start_analyzer(
+        video_path, 30, memory_size=1 << 30
+    )  # 1 GB of shared memory
     signal.signal(signal.SIGINT, lambda _, __: analyzer.stop_analysis())
     signal.pause()
 
