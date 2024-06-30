@@ -52,4 +52,3 @@ By default, the commands assume the dataset is in the directory `data` in the fo
         data/test/accident/...
 
 # TODO: stop calling stuff "testers", we don't have tests, we are "collecting data". test_blip -> blip (answer specific image, run on dataset, etc.), net_tester -> custom_model
-# TODO(omri): add LLM prompt testing script

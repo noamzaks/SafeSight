@@ -1,7 +1,23 @@
 import requests, os
 import time
 
-prompt = "You can only respond yes or no. Is there a car crash?"
+prompt = """
+Q: Is there a car accident in this image?
+
+A: No. There is some suspicious activity in the image, but it does not look like a car accident.
+
+Q: Is there a car accident in this image?
+
+A: Yes. There is a person lying on the ground, which indicates that there was probably a car accident.
+
+Q: Is there a car accident in this image?
+
+A: Yes. There are two cars that are close to each other and are perpendicular to one another, which indicates they have collided.
+
+Q: Is there a car accident in this image?
+
+A:
+""".strip()
 directory = r"./zaksaset 2/zaksaset"
 model_api = "https://ai.api.nvidia.com/v1/vlm/community/llava16-34b"
 
@@ -15,7 +31,7 @@ DEFAULT_HEADERS = {
 
 for subfolder in ["accident", "nonaccident"]:
     print(subfolder)
-    for filename in os.listdir(os.path.join(directory, subfolder)):
+    for filename in sorted(os.listdir(os.path.join(directory, subfolder))):
         if not filename.endswith(".png"):
             continue
         response = requests.post("https://api.nvcf.nvidia.com/v2/nvcf/assets", headers=DEFAULT_HEADERS | { "Content-Type": "application/json"}, json={
@@ -35,7 +51,7 @@ for subfolder in ["accident", "nonaccident"]:
         response = requests.post(model_api, headers=DEFAULT_HEADERS | {"NVCF-INPUT-ASSET-REFERENCES": asset_id}, json={"messages": [{"role": "user", "content": f'{prompt}. <img src="data:image/png;asset_id,{asset_id}" />' }]})
         response = response.json()
         try:
-            print(filename, response["choices"][0]["message"]["content"])
+            print(filename, response["choices"][0]["message"]["content"].strip())
         except:
             print(filename, response)
 

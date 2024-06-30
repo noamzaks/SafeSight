@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -75,7 +76,6 @@ class Net(nn.Module):
         if it can't find the matching string.
         """
         # print("in evaluate_image")
-        # print(self.settings.transform)
         # print(image)
         transformed = self.settings.transform(image).unsqueeze(0)
         # print(transformed, file=sys.stderr)
@@ -127,6 +127,7 @@ def train(traindir: Path, net: Net):
         net.parameters(), lr=net.settings.learning_rate, momentum=net.settings.momentum
     )
 
+    assert len(os.listdir(traindir)) == 2, "Train directory should have two subdirectories"
     trainset = torchvision.datasets.ImageFolder(
         str(traindir), transform=net.settings.transform
     )
@@ -268,7 +269,7 @@ def train_and_run_image(train_path: Path, test_path: Path):
     """
     Train and test image classification models with different parameters, taken from
     safesight.model_settings.
-    `test-path` and `test-path` should be directories organized like so:
+    `train-path` and `test-path` should be directories organized like so:
 
         train-path/accident/image1.jpg
 

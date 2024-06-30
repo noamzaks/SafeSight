@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import multiprocessing.connection
+from pathlib import Path
 import random
 import struct
 import time
@@ -10,6 +11,7 @@ from sys import stderr
 from typing import List, Optional, Dict
 
 from safesight.camera import Camera
+from safesight.file_camera import FileCamera
 from safesight.pipeline import Pipeline
 
 UINT_BITMASK = 0xffffffff
@@ -94,7 +96,7 @@ class Analyzer:
                 p.start()
 
             self.camera_proc = Process(name='camera', target=self._camera_process,
-                                       args=(camera, evaluations_per_second),
+                                       args=(evaluations_per_second,),
                                        kwargs={"shared_memory_name": shared_memory_name})
             self.camera_proc.start()
 
@@ -106,7 +108,8 @@ class Analyzer:
                 return init_success
 
     @staticmethod
-    def _camera_process(camera: Camera, evaluations_per_second: int, *, shared_memory_name: str):
+    def _camera_process(evaluations_per_second: int, *, shared_memory_name: str):
+        camera = FileCamera(Path("long_videos/10_secs.mp4"))
         print(f"[{mp.current_process().pid}] Starting camera process.", file=stderr)
         mem = None
         index = 0
@@ -142,7 +145,7 @@ class Analyzer:
                     print(f"Dropping frame {frame_num}, not enough memory", file=stderr)
                     continue
                 if index + frame_len + 8 + 2 >= len(buff):
-                    buff[0:4] = MemoryControl.WAIT.value
+                    buff[0:4] = struct.pack(">I", MemoryControl.WAIT.value)
                     buff[index:index + 4] = struct.pack(">I", MemoryControl.RESET_INDEX.value)
                     index = 0
 
@@ -151,15 +154,16 @@ class Analyzer:
                 buff[index:index + 4] = struct.pack(">I", frame_num)
 
                 buff[index + 8:index + 8 + frame_len] = img.convert("RGBA").tobytes()
-                buff[index + 8 + frame_len + 1] = MemoryControl.WAIT.value
+                buff[index + 8 + frame_len + 1:index + 8 + frame_len + 1 + 4] = struct.pack(">I", MemoryControl.WAIT.value)
                 buff[index + 8 + frame_len] = MemoryControl.FRAME_END.value
 
                 index += frame_len + 8 + 1
 
         finally:
+            print("Camera process closing", file=stderr)
             if mem:
                 mem.buf[index:index + 4] = struct.pack(">I", MemoryControl.CLOSE.value)
-                mem.close()
+                # mem.close()
 
     @staticmethod
     def _results_process(evaluation_queues: Dict[Pipeline, Queue]):
@@ -169,10 +173,11 @@ class Analyzer:
                 if item is None:
                     q.close()
                     evaluation_queues.pop(pipeline)
+                    continue
                 frame_num, evaluation = item
-                print(f"{pipeline},{frame_num},{evaluation.result}")
-                print(f"{pipeline} evaluated frame {frame_num}, result: {evaluation.result} ({evaluation.raw_answer})",
-                      file=stderr)
+                # print(f"{pipeline},{frame_num},{evaluation.result}")
+                # print(f"{pipeline} evaluated frame {frame_num}, result: {evaluation.result} ({evaluation.raw_answer})",
+                    #   file=stderr)
 
     def stop_analysis(self) -> None:
         """

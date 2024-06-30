@@ -59,6 +59,7 @@ class Pipeline(ABC):
             reset_countdown = 10
             while True:
                 frame_num = struct.unpack(">I", buff[index:index + 4])[0]
+                # print(index, frame_num)
 
                 if frame_num == MemCtrl.WAIT.value:
                     continue
@@ -92,6 +93,7 @@ class Pipeline(ABC):
 
                 frame = buff[index + 8:index + 8 + frame_len]
                 image = PIL.Image.frombuffer("RGBA", size, frame)
+                del frame
                 evaluation = self.process_image(image)
                 print(f"[{mp.current_process().pid}] Evaluated frame #{frame_num}, result: {evaluation.result}",
                       file=stderr)
@@ -100,8 +102,9 @@ class Pipeline(ABC):
                 index = index + 8 + frame_len + 1
 
         finally:
-            if mem is not None:
-                mem.close()
+            del buff
+            # if mem is not None:
+                # mem.close()
             evaluation_queue.put(None)
             evaluation_queue.close()
             self.cleanup()

@@ -16,33 +16,25 @@ def analyzer():
     pass
 
 
-@analyzer.command()
-@click.option(
-    "--video-path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
-)
-@click.option(
-    "--model-path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
-)
+# @analyzer.command()
+# @click.option(
+#     "--video-path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
+# )
+# @click.option(
+#     "--model-path", type=click.Path(exists=True, dir_okay=False, file_okay=True)
+# )
 def run_analyzer(video_path: Path, model_path: Path):
     analyzer = Analyzer()
     pipeline = CustomModelPipeline(model_path)
     analyzer.add_pipeline(pipeline)
     analyzer.start_analyzer(
-        video_path, 30, memory_size=1 << 30
+        FileCamera(video_path), 30, memory_size=1 << 30
     )  # 1 GB of shared memory
     signal.signal(signal.SIGINT, lambda _, __: analyzer.stop_analysis())
     signal.pause()
 
 
 if __name__ == "__main__":
-    video_path = Path("youtube_dataset/test.mp4")
-    model_path = Path("models/model0.pth")
-    settings = ModelSettings(
-        internal_layer_size=6,
-        epochs=3,
-        learning_rate=0.001,
-        momentum=0.9,
-        transform=TRANSFORM_OF_SIZE(500),
-    )
-
-    run_analyzer(video_path, model_path, settings)
+    video_path = Path("long_videos/10_secs.mp4")
+    model_path = Path("models/model2.pth")
+    run_analyzer(video_path, model_path)

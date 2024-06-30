@@ -21,17 +21,20 @@ class CustomModelPipeline(Pipeline):
         pass
 
     def __init__(self, model_path: Path) -> None:
-        self.net = Net()
+        self.net = None
+        self.model_path = model_path
         # load_state_dict also loads the ModelSettings, which are saved to disk.
-        self.net.load_state_dict(torch.load(str(model_path)))
-        self.net.train(False)
+        # self.net.load_state_dict(torch.load(str(model_path)))
+        # self.net.train(False)
 
     def process_image(self, image: Image) -> Evaluation:
-        # print("Got image in process_image", file=stderr)
-        label = self.net.evaluate_image(image)
+        if self.net is None:
+            self.net = Net()
+            self.net.load_state_dict(torch.load(str(self.model_path)))
+            self.net.train(False)
+        label = self.net.evaluate_image(image.convert("RGB"))
         if label == "accident":
             evaluation = Evaluation(True, timestamp=datetime.now())
         else:
             evaluation = Evaluation(False, timestamp=datetime.now())
-
         return evaluation

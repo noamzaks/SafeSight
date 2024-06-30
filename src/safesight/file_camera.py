@@ -33,7 +33,6 @@ class FileCamera(Camera):
 
         success, image = self.video.read()
         if not success:
-            print("Failed to read image from video file", file=sys.stderr)
             return None
         color_converted = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         PIL_image = Im.fromarray(color_converted)
