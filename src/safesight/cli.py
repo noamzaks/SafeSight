@@ -78,6 +78,9 @@ else:
         sys.exit(1)
 
 
+import safesight.nvidia # noqa: F401
+
+
 def main():
     # import safesight.videomae
     # import safesight.yolo
