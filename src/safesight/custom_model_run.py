@@ -42,8 +42,8 @@ def plot_results(result_file: Path):
     results = []
     with open(result_file, "r") as file:
         results = [1 if line.split(",")[1].strip() == "True" else 0 for line in file]
-    plt.plot([x / 30 for x in range(1, len(results) + 1)], results)
-    plt.savefig("results2.png")
+    plt.plot([i / 30.0 for i in range(len(results))], results)
+    plt.savefig("results.png")
 
 
 if __name__ == "__main__":
