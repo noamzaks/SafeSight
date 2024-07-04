@@ -26,10 +26,8 @@ def analyzer():
 def run_analyzer(video_path: Path, model_path: Path):
     analyzer = Analyzer()
     pipeline = CustomModelPipeline(model_path)
-    analyzer.add_pipeline(pipeline)
-    analyzer.start_analyzer(
-        FileCamera(video_path), 30, memory_size=1 << 30
-    )  # 1 GB of shared memory
+    analyzer.add_pipeline("custom_model", pipeline, True    )
+    analyzer.start_analyzer(30, memory_size=1 << 30)  # 1 GB of shared memory
     signal.signal(signal.SIGINT, lambda _, __: analyzer.stop_analysis())
     signal.pause()
 

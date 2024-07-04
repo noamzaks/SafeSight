@@ -44,7 +44,8 @@ class Pipeline(ABC):
         """
         pass
 
-    def run_pipeline(self, *, shared_memory_name: str, evaluation_queue: mp.SimpleQueue):
+    def run_pipeline(self, *, shared_memory_name: str, evaluation_queue: mp.Queue,
+                     index_queue: mp.Queue):
         from safesight.analyzer import MemoryControl as MemCtrl
         print(f"[{mp.current_process().pid}] Starting pipeline {self}.", file=stderr)
 
@@ -57,25 +58,29 @@ class Pipeline(ABC):
 
             index = 0
             reset_countdown = 10
+
+            complete = True
+
             while True:
-                frame_num = struct.unpack(">I", buff[index:index + 4])[0]
                 # print(index, frame_num)
+                if complete:
+                    index = index_queue.get()
+                    complete = False
+
+                frame_num = struct.unpack(">I", buff[index:index + 4])[0]
 
                 if frame_num == MemCtrl.WAIT.value:
                     continue
                 if frame_num == MemCtrl.CLOSE.value:
                     break
-                if frame_num == MemCtrl.RESET_INDEX.value:
-                    index = 0
-                    continue
 
                 # noinspection PyTypeChecker
                 size: Tuple[int, int] = struct.unpack(">HH", buff[index + 4:index + 8])
                 if size[0] * size[1] == 0:
                     print(f"[{mp.current_process().pid}] Unexpected size: {size}.", file=stderr)
                     if reset_countdown == 0:
-                        print(f"[{mp.current_process().pid}] Forcing index reset.", file=stderr)
-                        index = 0
+                        print(f"[{mp.current_process().pid}] Dropping index {index}.", file=stderr)
+                        complete = True
                     else:
                         reset_countdown -= 1
                         time.sleep(0.01)
@@ -99,13 +104,13 @@ class Pipeline(ABC):
                       file=stderr)
                 evaluation_queue.put((frame_num, evaluation))
 
-                index = index + 8 + frame_len + 1
-
+                complete = True
         finally:
             del buff
             # if mem is not None:
-                # mem.close()
+            # mem.close()
             evaluation_queue.put(None)
             evaluation_queue.close()
+            index_queue.close()
             self.cleanup()
             print(f"[{mp.current_process().pid}] Closing pipeline {self}.", file=stderr)
