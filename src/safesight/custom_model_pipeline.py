@@ -1,6 +1,5 @@
 from datetime import datetime
 from pathlib import Path
-from sys import stderr
 
 import torch
 from PIL.Image import Image

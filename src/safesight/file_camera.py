@@ -1,13 +1,12 @@
-from pathlib import Path
-import sys
 import time
+from pathlib import Path
 from typing import Optional
 
+import cv2
 from PIL import Image as Im
 from PIL.Image import Image
-from safesight.camera import Camera
 
-import cv2
+from safesight.camera import Camera
 
 
 class FileCamera(Camera):

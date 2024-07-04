@@ -1,10 +1,10 @@
-import csv
+from pathlib import Path
+
 import matplotlib.pyplot as plt
+
 from safesight.cli import cli
-import click
 from safesight.custom_model_pipeline import CustomModelPipeline
 from safesight.file_camera import FileCamera
-from pathlib import Path
 
 
 @cli.group()

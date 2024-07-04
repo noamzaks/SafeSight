@@ -1,5 +1,8 @@
-import requests, os
+import os
 import time
+from typing import Union
+
+import requests
 
 prompt = """
 Q: Is there a car accident in this image?
@@ -52,7 +55,7 @@ for subfolder in ["accident", "nonaccident"]:
         response = response.json()
         try:
             print(filename, response["choices"][0]["message"]["content"].strip())
-        except:
+        except Union[KeyError, IndexError]:
             print(filename, response)
 
         response = requests.delete(f"https://api.nvcf.nvidia.com/v2/nvcf/assets/{asset_id}", headers=DEFAULT_HEADERS)

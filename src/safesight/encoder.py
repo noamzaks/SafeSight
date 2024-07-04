@@ -1,19 +1,17 @@
+import sys
 from dataclasses import dataclass
 from pathlib import Path
-import sys
 from typing import Callable, Dict, List
 
 import PIL.Image
-from PIL.Image import Image
 import clip
-from torch import optim
-from torch import nn
 import torch
 import torch.utils.data
 import torchvision
-from torchvision.transforms import v2
+from PIL.Image import Image
+from torch import nn
+from torch import optim
 
-from safesight.file_camera import FileCamera
 from safesight.test_results import TestResults
 
 
@@ -190,7 +188,7 @@ class EncoderClassifier:
         """
         Evaluate each frame in the video at video_path. Outputs to
         """
-        file_camera = FileCamera(video_path)
+        # file_camera = FileCamera(video_path)
 
 
 if __name__ == "__main__":
