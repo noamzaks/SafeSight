@@ -1,0 +1,287 @@
+#!/usr/bin/bash
+
+# Arguments:
+# "-h / --help" - Print help page
+# "-p / --python" - Python version to use (default: 3.12)
+# "-t / --toolchain" - Toolchain to use (default: autodetect, options: cuda, rocm, cpu)
+# "-I / --nointerative" - Do not ask for user input
+# "-y / --yes" - Enables all options in non-interactive mode
+# "-v / --verbose" - Enable verbose mode
+# "--cuda-version" - CUDA version to use (default: 12.1)
+
+# Print help page
+function print_help() {
+  echo "Usage: ./bootstrap.sh [OPTIONS]"
+  echo "Options:"
+  echo "  -h, --help            Print this help page"
+  echo "  -v, --verbose         Enable verbose mode"
+  echo "  -p, --python          Python version to use (default: 3.12)"
+  echo "  -t, --toolchain       Toolchain to use (default: autodetect, options: cuda, rocm, cpu)"
+  echo "  -I, --nointeractive   Do not ask for user input"
+  echo "  -y, --yes             Enables all options in non-interactive mode"
+  echo "  --cuda-version        CUDA version to use (default: 12.1)"
+  echo "Example: ./bootstrap.sh -p 3.12 -t cuda --cuda-version 11.1"
+}
+
+# Check uv installation and install/update if necessary
+function check_uv() {
+  if ! command -v uv > /dev/null; then
+    echo "uv is not installed."
+    if [ "$NO_INTERACTIVE" = false ]; then
+      read -p "Install uv? [y/N] " -n 1 -r
+      echo
+    fi
+    if [ "$REPLY" = "y" ] || [ "$YES" = true ]; then
+      echo "Installing uv..."
+
+      curl -LsSf https://astral.sh/uv/install.sh | sh -- $VERBOSE
+    else
+      echo "uv is required for the project"
+      exit 1
+    fi
+  fi
+
+  latest_version=$(curl -s https://api.github.com/repos/astral-sh/uv/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+  current_version=$(uv --version)
+  if [ "uv $latest_version" != "$current_version" ]; then
+    echo "A new version of uv is available."
+    if [ "$NO_INTERACTIVE" = false ]; then
+      read -p "Update uv? [y/N] " -n 1 -r
+      echo
+    fi
+    if [ "$REPLY" = "y" ] || [ "$YES" = true ]; then
+      echo "Updating uv..."
+      uv self update $VERBOSE
+    fi
+  fi
+}
+
+# Check python installation and install if necessary
+function check_python() {
+  if [ -z "$PYTHON_VERSION" ]; then
+    if [ "$NO_INTERACTIVE" = false ]; then
+      read -p "Enter Python version to use: " -r PYTHON_VERSION
+    else
+      PYTHON_VERSION="3.12"
+    fi
+  fi
+
+  python_installation=$(uv toolchain find "$PYTHON_VERSION" 2> /dev/null)
+
+  if [ -z "$python_installation" ]; then
+    echo "Python $PYTHON_VERSION is not installed."
+    if [ "$NO_INTERACTIVE" = false ]; then
+      read -p "Install Python $PYTHON_VERSION? [y/N] " -n 1 -r
+      echo
+    fi
+    if [ "$REPLY" = "y" ] || [ "$YES" = true ]; then
+      echo "Installing Python $PYTHON_VERSION..."
+      uv toolchain install "$PYTHON_VERSION" $VERBOSE
+
+      python_installation=$(uv toolchain find "$PYTHON_VERSION")
+    else
+      echo "Install Python $PYTHON_VERSION and run the script again."
+      exit 1
+    fi
+  fi
+}
+
+# Check venv and create if doesn't exist
+function check_venv() {
+  deactivate 2> /dev/null
+  conda deactivate 2> /dev/null
+
+  venv_dir=".venv$PYTHON_VERSION"
+  if [ ! -d "$venv_dir" ]; then
+    echo "Creating virtual environment..."
+    >&2 echo "Command: uv venv -p $python_installation $venv_dir"
+    uv venv -p "$python_installation" "$venv_dir"
+  fi
+
+  source "$venv_dir/bin/activate"
+}
+
+# Detect GPU toolchain and install the package with correct torch dependency
+function install() {
+  if [ -z "$TOOLCHAIN" ]; then
+    # Detect CUDA version if installed
+    if command -v nvcc > /dev/null; then
+      TOOLCHAIN="cuda"
+      CUDA_VERSION=$(nvcc --version | grep -oP 'release (\K[0-9]+\.[0-9]+)')
+      echo "Detected CUDA $CUDA_VERSION"
+    fi
+
+    # Check if ROCm is installed
+    if command -v rocminfo > /dev/null; then
+      TOOLCHAIN="rocm"
+      echo "Detected ROCm"
+    fi
+
+    if [ -z "$TOOLCHAIN" ]; then
+      TOOLCHAIN="cpu"
+      if [ "$NO_INTERACTIVE" = false ]; then
+        echo "No GPU toolchain detected."
+        read -p "Use CPU? [y/N] " -n 1 -r
+        echo
+        if [ "$REPLY" = "n" ]; then
+          read -p "Enter toolchain to use (cuda/rocm): " -r TOOLCHAIN
+          if [ "$TOOLCHAIN" != "cuda" ] && [ "$TOOLCHAIN" != "rocm" ]; then
+            echo "Invalid toolchain."
+            exit 1
+          fi
+        fi
+      else
+        echo "No GPU toolchain detected. Using CPU."
+      fi
+    fi
+  fi
+
+  if [ "$TOOLCHAIN" = "cuda" ]; then
+    if [ -z "$CUDA_VERSION" ]; then
+      if [ "$NO_INTERACTIVE" = false ]; then
+        read -p "Enter CUDA version to use (default: 12.1): " -r CUDA_VERSION
+        echo
+      else
+        CUDA_VERSION="12.1"
+      fi
+    fi
+  fi
+
+  # Supported CUDA versions: 10.1, 10.2, 11.0, 11.1, 11.3, 11.6, 11.7, 11.8, 12.1
+  if [ "$TOOLCHAIN" = "cuda" ]; then
+    case "$CUDA_VERSION" in
+      "10.1"|"10.2"|"11.0"|"11.1"|"11.2"|"11.3"|"11.4"|"11.5"|"11.6"|"11.7"|"11.8"|"12.0"|"12.1")
+        ;;
+      *)
+        echo "CUDA $CUDA_VERSION is not supported."
+        exit 1
+        ;;
+    esac
+  fi
+
+  # torch versions for CUDA: 10.1 -> 1.8.1, 10.2 -> 1.12.1, 11.0 -> 1.7.1, 11.1 -> 1.10.1, 11.3 -> 1.12.1, 11.6 -> 1.13.1, 11.7 -> 2.0.1, 11.8 -> 2.3.1, 12.1 -> 2.3.1
+  if [ "$TOOLCHAIN" = "cuda" ]; then
+    case "$CUDA_VERSION" in
+      "10.1")
+        torch_version="1.8.1+cu101"
+        torchvision_version="0.9.1+cu101"
+        torchaudio_version="0.8.1"
+        ;;
+      "10.2")
+        torch_version="1.12.1+cu102"
+        torchvision_version="0.13.1+cu102"
+        torchaudio_version="0.12.1"
+        ;;
+      "11.0")
+        torch_version="1.7.1"
+        torchvision_version="0.8.2"
+        torchaudio_version="0.7.2"
+        ;;
+      "11.1")
+        torch_version="1.10.1+cu111"
+        torchvision_version="0.11.2+cu111"
+        torchaudio_version="0.10.1"
+        ;;
+      "11.3")
+        torch_version="1.12.1+cu113"
+        torchvision_version="0.13.1+cu113"
+        torchaudio_version="0.12.1"
+        ;;
+      "11.6")
+        torch_version="1.13.1+cu116"
+        torchvision_version="0.14.2+cu116"
+        torchaudio_version="0.13.1"
+        ;;
+      "11.7")
+        torch_version="2.0.1"
+        torchvision_version="0.15.2"
+        torchaudio_version="2.0.2"
+        ;;
+      "11.8")
+        torch_version="2.3.1+cu118"
+        torchvision_version="0.18.1+cu118"
+        torchaudio_version="2.3.1+cu118"
+        ;;
+      "12.1")
+        torch_version="2.3.1+cu121"
+        torchvision_version="0.18.1+cu121"
+        torchaudio_version="2.3.1+cu121"
+        ;;
+    esac
+  elif [ "$TOOLCHAIN" = "rocm" ]; then
+    torch_version="2.3.1+rocm6.0"
+    torchvision_version="0.18.1+rocm6.0"
+    torchaudio_version="2.3.1+rocm6.0"
+  else
+    torch_version="2.3.1+cpu"
+    torchvision_version="0.18.1+cpu"
+    torchaudio_version="2.3.1+cpu"
+  fi
+
+  override=""
+  read -d '' -r override << EOF
+torch==$torch_version
+torchvision==$torchvision_version
+torchaudio==$torchaudio_version
+EOF
+
+    echo "Installing Python dependencies..."
+    echo "$override" > override.tmp.txt
+    uv pip install -e . --override override.tmp.txt --find-links https://download.pytorch.org/whl/torch_stable.html
+
+    rm override.tmp.txt
+}
+
+NO_INTERACTIVE=false
+YES=false
+PYTHON_VERSION=""
+TOOLCHAIN=""
+CUDA_VERSION=""
+VERBOSE=""
+
+# Parse arguments
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -p|--python)
+      PYTHON_VERSION="$2"
+      shift 2
+      ;;
+    -t|--toolchain)
+      TOOLCHAIN="$2"
+      shift 2
+      ;;
+    -I|--nointeractive)
+      NO_INTERACTIVE=true
+      shift
+      ;;
+    -y|--yes)
+      YES=true
+      shift
+      ;;
+    --cuda-version)
+      CUDA_VERSION="$2"
+      shift 2
+      ;;
+    -v|--verbose)
+      VERBOSE="-v"
+      shift
+      ;;
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1"
+      print_help
+      exit 1
+      ;;
+  esac
+done
+
+check_uv
+check_python
+check_venv
+install
+
+echo -e "Run \`source .venv$PYTHON_VERSION/bin/activate\` to activate the virtual environment."
+echo "Done."
