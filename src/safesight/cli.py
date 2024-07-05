@@ -78,7 +78,7 @@ else:
         sys.exit(1)
 
 
-import safesight.nvidia # noqa: F401
+import safesight.nvidia # noqa: F401, E402
 
 
 def main():

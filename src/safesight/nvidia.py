@@ -71,7 +71,7 @@ def run_on_dataset(directory, prompt, model):
             response = response.json()
             try:
                 print(filename, response["choices"][0]["message"]["content"].strip().replace("\n", " "))
-            except:
+            except Exception:
                 print(filename, response)
 
             response = requests.delete(f"https://api.nvcf.nvidia.com/v2/nvcf/assets/{asset_id}", headers=DEFAULT_HEADERS)
