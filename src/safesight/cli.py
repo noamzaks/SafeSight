@@ -84,6 +84,12 @@ def nvidia():
     Commands for interacting with the NVIDIA API.
     """
 
+@cli.group(cls=ModuleGroup, module="safesight.run_pipeline")
+def pipeline():
+    """
+    Run pipeline on dataset.
+    """
+
 
 def main():
     cli()
