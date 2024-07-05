@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # Arguments:
 # "-h / --help" - Print help page
