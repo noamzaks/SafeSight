@@ -5,13 +5,7 @@ import click
 import torch
 from lavis.models import load_model_and_preprocess
 
-from safesight.cli import cli
-
-
-@cli.group()
-def lavis():
-    """Commands for the LAVIS library (BLIP model) (python==3.8)"""
-    pass
+from safesight.cli import lavis
 
 
 @lavis.command()

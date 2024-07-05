@@ -1,19 +1,12 @@
-import requests
+import base64
 import os
 import time
-import tqdm
-import base64
 
 import click
+import requests
+import tqdm
 
-from safesight.cli import cli
-
-
-@cli.group()
-def nvidia():
-    """
-    Commands for interacting with the NVIDIA API.
-    """
+from safesight.cli import nvidia
 
 
 @nvidia.command()
@@ -44,8 +37,8 @@ def run_on_dataset(directory, prompt, model):
     print(prompt.replace("\n", " "))
 
     DEFAULT_HEADERS = {
-    "Authorization": f"Bearer {os.environ["NVIDIA_API_KEY"]}",
-    "Accept": "application/json"
+        "Authorization": f"Bearer {os.environ["NVIDIA_API_KEY"]}",
+        "Accept": "application/json"
     }
 
     for subfolder in ["accident", "nonaccident"]:
@@ -53,28 +46,33 @@ def run_on_dataset(directory, prompt, model):
         for filename in tqdm.tqdm(sorted(os.listdir(os.path.join(directory, subfolder)))):
             if not filename.endswith(".png"):
                 continue
-            response = requests.post("https://api.nvcf.nvidia.com/v2/nvcf/assets", headers=DEFAULT_HEADERS | { "Content-Type": "application/json"}, json={
-                "contentType": "image/png",
-                "description": "potato"
-            })
+            response = requests.post("https://api.nvcf.nvidia.com/v2/nvcf/assets",
+                                     headers=DEFAULT_HEADERS | {"Content-Type": "application/json"}, json={
+                    "contentType": "image/png",
+                    "description": "potato"
+                })
             response = response.json()
             asset_id = response["assetId"]
             upload_url = response["uploadUrl"]
 
-
             with open(os.path.join(directory, subfolder, filename), "rb") as f:
                 image_contents = f.read()
 
-            response = requests.put(upload_url, headers={ "Content-Type": "image/png", "x-amz-meta-nvcf-asset-description": "potato" }, data=image_contents)
+            response = requests.put(upload_url, headers={"Content-Type": "image/png",
+                                                         "x-amz-meta-nvcf-asset-description": "potato"},
+                                    data=image_contents)
 
-            response = requests.post(model_api, headers=DEFAULT_HEADERS | {"NVCF-INPUT-ASSET-REFERENCES": asset_id}, json={"messages": [{"role": "user", "content": f'{prompt}. <img src="data:image/png;asset_id,{asset_id}" />' }]})
+            response = requests.post(model_api, headers=DEFAULT_HEADERS | {"NVCF-INPUT-ASSET-REFERENCES": asset_id},
+                                     json={"messages": [{"role": "user",
+                                                         "content": f'{prompt}. <img src="data:image/png;asset_id,{asset_id}" />'}]})
             response = response.json()
             try:
                 print(filename, response["choices"][0]["message"]["content"].strip().replace("\n", " "))
             except Exception:
                 print(filename, response)
 
-            response = requests.delete(f"https://api.nvcf.nvidia.com/v2/nvcf/assets/{asset_id}", headers=DEFAULT_HEADERS)
+            response = requests.delete(f"https://api.nvcf.nvidia.com/v2/nvcf/assets/{asset_id}",
+                                       headers=DEFAULT_HEADERS)
 
             time.sleep(2)
 

@@ -1,20 +1,44 @@
+import importlib
 import sys
+from typing import List
 
 import click
 
 
+class ModuleGroup(click.Group):
+    def __init__(self, *args, module: str = None, python_accepted_versions: List[str] = None, **kwargs):
+        if python_accepted_versions is not None:
+            for version in python_accepted_versions:
+                if sys.version.startswith(version):
+                    break
+            else:
+                kwargs["help"] = ("[Unavailable] Supported Python versions: " +
+                                  ", ".join(python_accepted_versions))
+                module = None
+        super().__init__(*args, **kwargs)
+        self.module = None
+        self.module_name = module
+
+    def list_commands(self, ctx):
+        if self.module is None:
+            if self.module_name is None:
+                return []
+            self.module = importlib.import_module(self.module_name)
+        return super().list_commands(ctx)
+
+    def get_command(self, ctx, cmd_name):
+        if self.module is None:
+            if self.module_name is None:
+                return click.Command(cmd_name, callback=lambda: click.echo(
+                    "This command is not available at current python version."))
+            self.module = importlib.import_module(self.module_name)
+        return super().get_command(ctx, cmd_name)
+
+
 def is_venv():
     return hasattr(sys, "real_prefix") or (
-        hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
+            hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
     )
-
-
-def is_python_exactly(version):
-    return sys.version.startswith(version)
-
-
-def is_python_at_least(version):
-    return sys.version_info >= version
 
 
 @click.group()
@@ -24,64 +48,42 @@ def cli():
         sys.exit(1)
 
 
-if is_python_at_least((3, 10)):
-    # noinspection PyUnresolvedReferences
-    import safesight.dataset_downloader # noqa: F401
-else:
-
-    @cli.command()
-    @click.argument("_", nargs=-1)
-    def dataset(_):
-        """Download datasets (python>=3.10)"""
-        click.echo("This command requires Python 3.10 or later.")
-        sys.exit(1)
+@cli.group(cls=ModuleGroup, module="safesight.dataset_downloader", python_accepted_versions=["3.10", "3.11", "3.12"])
+def dataset():
+    """Download datasets (python>=3.10)"""
+    pass
 
 
-if is_python_at_least((3, 9)):
-    # noinspection PyUnresolvedReferences
-    import safesight.test_gemini # noqa: F401
-else:
-
-    @cli.command()
-    @click.argument("_", nargs=-1)
-    def gemini(_):
-        """Commands for Gemini (python>=3.9)"""
-        click.echo("This command requires Python 3.9 or later.")
-        sys.exit(1)
+@cli.group(cls=ModuleGroup, module="safesight.test_gemini", python_accepted_versions=["3.9", "3.10", "3.11", "3.12"])
+def gemini():
+    """Commands for Gemini (python>=3.9)"""
+    pass
 
 
-if is_python_exactly("3.8"):
-    # noinspection PyUnresolvedReferences
-    import safesight.test_analyzer # noqa: F401
-    import safesight.test_blip # noqa: F401
-else:
-
-    @cli.command()
-    @click.argument("_", nargs=-1)
-    def lavis(_):
-        """Commands for the LAVIS library (BLIP model) (python==3.8)"""
-        click.echo("This command requires Python 3.8")
-        sys.exit(1)
+@cli.group(cls=ModuleGroup, module="safesight.test_blip", python_accepted_versions=["3.8"])
+def lavis():
+    """Commands for the LAVIS library (BLIP model) (python==3.8)"""
+    pass
 
 
-if is_python_exactly("3.8"):
-    # noinspection PyUnresolvedReferences
-    import safesight.videomae # noqa: F401
-    import safesight.yolo # noqa: F401
-else:
-
-    @cli.command()
-    @click.argument("_", nargs=-1)
-    def videomae(_):
-        """Commands for VideoMAE model (temporarily only Python 3.8)"""
-        click.echo("This command requires Python 3.8 (temporarily)")
-        sys.exit(1)
+@cli.group(cls=ModuleGroup, module="safesight.test_videomae", python_accepted_versions=["3.8"])
+def videomae():
+    """Commands for VideoMAE model"""
+    pass
 
 
-import safesight.nvidia # noqa: F401, E402
+@cli.group(cls=ModuleGroup, module="safesight.test_yolo", python_accepted_versions=["3.8"])
+def yolo():
+    """Commands for YOLO model"""
+    pass
+
+
+@cli.group(cls=ModuleGroup, module="safesight.nvidia")
+def nvidia():
+    """
+    Commands for interacting with the NVIDIA API.
+    """
 
 
 def main():
-    # import safesight.videomae
-    # import safesight.yolo
     cli()

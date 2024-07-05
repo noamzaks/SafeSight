@@ -1,20 +1,15 @@
 import os
+import urllib.request
 import zipfile
 
 import click
 import mlcroissant as mlc
-import urllib.request
-import safesight.cli as cli
+
+from safesight.cli import dataset
 
 datasets = {
     "ckay16": "https://www.kaggle.com/datasets/ckay16/accident-detection-from-cctv-footage/croissant/download",
 }
-
-
-@cli.cli.group()
-def dataset():
-    """Download datasets (python>=3.10)"""
-    pass
 
 
 @dataset.command(name="list")

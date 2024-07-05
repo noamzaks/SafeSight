@@ -5,20 +5,13 @@
 
 import av
 import click
-import torch
 import numpy as np
-
+import torch
 from transformers import AutoImageProcessor, VideoMAEForVideoClassification
 
-from safesight.cli import cli
+from safesight.cli import videomae
 
 np.random.seed(0)
-
-
-@cli.group()
-def videomae():
-    """Commands for VideoMAE model"""
-    pass
 
 
 def read_video_pyav(container, indices):

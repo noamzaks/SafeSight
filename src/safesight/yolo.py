@@ -1,19 +1,13 @@
+from pathlib import Path
 from typing import Union, List
 
 from ultralytics import YOLO
-from pathlib import Path
 
-from safesight.cli import cli
+from safesight.cli import yolo
 
 
 def get_all_files(directory: Union[Path, str], extention: str) -> List[Path]:
     return list(Path(directory).glob(f"**/*.{extention}"))
-
-
-@cli.group()
-def yolo():
-    """Commands for YOLO model"""
-    pass
 
 
 @yolo.command()

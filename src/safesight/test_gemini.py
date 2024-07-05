@@ -6,16 +6,11 @@ import PIL.Image
 import click
 import google.generativeai as genai
 
-from safesight.cli import cli
+from safesight.cli import gemini
+
 
 # GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']
 # genai.configure(api_key=GOOGLE_API_KEY)
-
-
-@cli.group()
-def gemini():
-    """Commands for Gemini (python>=3.9)"""
-    pass
 
 
 @gemini.command()
