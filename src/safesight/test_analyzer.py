@@ -4,6 +4,7 @@ from pathlib import Path
 from safesight.analyzer import Analyzer
 from safesight.cli import cli
 from safesight.custom_model_pipeline import CustomModelPipeline
+from safesight.gemini_pipeline import GeminiPipeline
 
 
 @cli.group()
@@ -21,8 +22,10 @@ def analyzer():
 # )
 def run_analyzer(model_path: Path):
     analyzer = Analyzer()
-    pipeline = CustomModelPipeline(model_path)
-    analyzer.add_pipeline("custom_model", pipeline, True)
+    model_pipeline = CustomModelPipeline(model_path)
+    gemini_pipeline = GeminiPipeline()
+    analyzer.add_pipeline("custom_model", model_pipeline, True)
+    analyzer.add_pipeline("gemini", gemini_pipeline, False)
     analyzer.start_analyzer(30, memory_size=1 << 30)  # 1 GB of shared memory
     signal.signal(signal.SIGINT, lambda _, __: analyzer.stop_analysis())
     signal.pause()

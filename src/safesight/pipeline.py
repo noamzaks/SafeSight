@@ -100,8 +100,9 @@ class Pipeline(ABC):
                 image = PIL.Image.frombuffer("RGBA", size, frame)
                 del frame
                 evaluation = self.process_image(image)
-                print(f"[{mp.current_process().pid}] Evaluated frame #{frame_num}, result: {evaluation.result}",
-                      file=stderr)
+                del image
+                # print(f"[{mp.current_process().pid}] Evaluated frame #{frame_num}, result: {evaluation.result}",
+                #       file=stderr)
                 evaluation_queue.put((frame_num, evaluation))
 
                 complete = True

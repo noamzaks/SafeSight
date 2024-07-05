@@ -18,7 +18,7 @@ class GeminiPipeline(Pipeline):
         self.prompt = prompt
 
     def process_image(self, image: Image) -> Evaluation:
-        response = self.model.generate_content([image, self.prompt])
+        response = self.model.generate_content([image.convert("RGB"), self.prompt])
         response.resolve()
 
         prediction = response.text.lower().startswith("yes")

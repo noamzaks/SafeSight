@@ -1,6 +1,8 @@
 import multiprocessing as mp
 import multiprocessing.connection
+import queue
 import random
+import signal
 import struct
 import time
 from dataclasses import dataclass
@@ -15,6 +17,8 @@ from safesight.file_camera import FileCamera
 from safesight.pipeline import Pipeline
 
 UINT_BITMASK = 0xffffffff
+
+KILL_TIMEOUT = 5
 
 
 class MemoryControl(Enum):
@@ -32,6 +36,12 @@ class MemoryControl(Enum):
     WAIT = UINT_BITMASK & -1
     RESET_INDEX = UINT_BITMASK & -2
     CLOSE = UINT_BITMASK & -3
+
+
+class _ProcessSigIntIgnore(mp.Process):
+    def run(self):
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        super().run()
 
 
 class Analyzer:
@@ -83,6 +93,7 @@ class Analyzer:
         init_success = False
         try:
             self.running = True
+            print(f"[{mp.current_process().pid}] Starting analyzer.", file=stderr)
 
             random_salt = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=8))
             shared_memory_name = f"safesight_analyzer-{random_salt}"
@@ -95,26 +106,30 @@ class Analyzer:
             camera_to_eval_queue = Queue()
             process_index_queues = {p.name: Queue() for p in self.pipelines}
 
-            self.results_proc = Process(name='eval', target=self._eval_process,
-                                        args=(evaluation_queues, camera_to_eval_queue, process_index_queues))
+            self.results_proc = _ProcessSigIntIgnore(name='eval', target=self._eval_process,
+                                                     args=(
+                                                         evaluation_queues, camera_to_eval_queue, process_index_queues))
             self.results_proc.start()
 
             for pipeline in self.pipelines:
-                p = Process(name=f'pipeline-{pipeline.name}', target=pipeline.pipeline.run_pipeline,
-                            kwargs={"shared_memory_name": shared_memory_name,
-                                    "evaluation_queue": evaluation_queues[pipeline.name],
-                                    "index_queue": process_index_queues[pipeline.name]})
+                p = _ProcessSigIntIgnore(name=f'pipeline-{pipeline.name}', target=pipeline.pipeline.run_pipeline,
+                                         kwargs={"shared_memory_name": shared_memory_name,
+                                                 "evaluation_queue": evaluation_queues[pipeline.name],
+                                                 "index_queue": process_index_queues[pipeline.name]})
                 pipeline.process = p
                 p.start()
 
-            self.autorun_proc = Process(name='autorun', target=self._adaptive_rate_process,
-                                        args=(camera_to_autorun_queue, process_index_queues))
+            self.autorun_proc = _ProcessSigIntIgnore(name='autorun', target=self._adaptive_rate_process,
+                                                     args=(camera_to_autorun_queue,
+                                                           {p.name: process_index_queues[p.name] for p in
+                                                            self.pipelines if p.autorun}))
             self.autorun_proc.start()
 
-            self.camera_proc = Process(name='camera', target=self._camera_process,
-                                       args=(frames_pes_second,),
-                                       kwargs={"shared_memory_name": shared_memory_name,
-                                               "index_queues": [camera_to_eval_queue, camera_to_autorun_queue]})
+            self.camera_proc = _ProcessSigIntIgnore(name='camera', target=self._camera_process,
+                                                    args=(frames_pes_second,),
+                                                    kwargs={"shared_memory_name": shared_memory_name,
+                                                            "index_queues": [camera_to_eval_queue,
+                                                                             camera_to_autorun_queue]})
             self.camera_proc.start()
 
             init_success = True
@@ -127,6 +142,12 @@ class Analyzer:
     @staticmethod
     def _camera_process(frames_per_second: int, *, shared_memory_name: str,
                         index_queues: List[Queue]):
+
+        def terminate():
+            raise KeyboardInterrupt
+
+        signal.signal(signal.SIGTERM, lambda _, __: terminate())
+
         camera = FileCamera(Path("../../data/videos/test.mp4"))
         print(f"[{mp.current_process().pid}] Starting camera process.", file=stderr)
         mem = None
@@ -182,15 +203,18 @@ class Analyzer:
                 index += frame_len + 8 + 1
 
         finally:
-            print("Camera process closing", file=stderr)
+            print(f"[{mp.current_process().pid}] Camera process exiting.", file=stderr)
             if mem:
                 mem.buf[index:index + 4] = struct.pack(">I", MemoryControl.CLOSE.value)
                 # mem.close()
-            for q in index_queues:
-                q.put((None, index))
+            for i_queue in index_queues:
+                i_queue.put((None, index))
+                i_queue.close()
+            return
 
     @staticmethod
     def _adaptive_rate_process(index_queue: Queue, pipeline_index_queues: Dict[str, Queue]):
+        print(f"[{mp.current_process().pid}] Starting autorun process.", file=stderr)
         while True:
             frame, index = index_queue.get()
             if frame is None:
@@ -200,27 +224,60 @@ class Analyzer:
             for _, q in pipeline_index_queues.items():
                 q.put(index)
 
+        for q in pipeline_index_queues.values():
+            q.close()
+        print(f"[{mp.current_process().pid}] Autorun process exiting.", file=stderr)
+
     @staticmethod
     def _eval_process(evaluation_queues: Dict[str, Queue], index_queue: Queue,
                       pipeline_index_queues: Dict[str, Queue]):
+        print(f"[{mp.current_process().pid}] Starting evaluation process.", file=stderr)
+
         frames = dict()
+        last_positive = 0
+
         while len(evaluation_queues) > 0:
             if not index_queue.empty():
                 frame, index = index_queue.get()
                 if frame is None:
-                    break
+                    for q in pipeline_index_queues.values():
+                        q.put(index)
+                    continue
                 frames[frame] = index
-
             for pipeline, q in evaluation_queues.copy().items():
-                item = q.get()
+                try:
+                    item = q.get(False)
+                except queue.Empty:
+                    continue
                 if item is None:
                     # q.close()
                     evaluation_queues.pop(pipeline)
                     continue
                 frame_num, evaluation = item
+                if frame_num not in frames:
+                    frame, index = index_queue.get()
+                    if frame is None:
+                        for p_queue in pipeline_index_queues.values():
+                            p_queue.put(index)
+                        break
+                    frames[frame] = index
+
                 # print(f"{pipeline},{frame_num},{evaluation.result}")
                 print(f"{pipeline} evaluated frame {frame_num}, result: {evaluation.result} ({evaluation.raw_answer})",
                       file=stderr)
+
+                if pipeline == "custom_model" and evaluation.result:
+                    t = time.time()
+                    if t - last_positive > 5:
+                        last_positive = t
+                        pipeline_index_queues["gemini"].put(frames[frame_num])
+
+        for q in evaluation_queues.values():
+            q.close()
+        index_queue.close()
+        for q in pipeline_index_queues.values():
+            q.close()
+        print(f"[{mp.current_process().pid}] Evaluation process exiting.", file=stderr)
 
     def stop_analysis(self) -> None:
         """
@@ -236,20 +293,25 @@ class Analyzer:
         self.stopping = True
 
         if self.camera_proc:
-            self.camera_proc.kill()
+            self.camera_proc.terminate()
 
-        if self.autorun_proc:
-            self.autorun_proc.kill()
-
-        if self.results_proc:
-            self.results_proc.kill()
+        # if self.autorun_proc:
+        #     self.autorun_proc.kill()
+        #
+        # if self.results_proc:
+        #     self.results_proc.kill()
 
         # Give the system time to stop gracefully
-        multiprocessing.connection.wait([p.sentinel for p in mp.active_children()], timeout=5)
+        t = time.time()
+        while len(mp.active_children()) > 0 and time.time() - t < KILL_TIMEOUT:
+            mp.connection.wait([p.sentinel for p in mp.active_children()], timeout=0.1)
 
-        for p in [self.camera_proc, self.results_proc] + [p.process for p in self.pipelines]:
+        gracefully = True
+        for p in [self.camera_proc, self.autorun_proc, self.results_proc] + [p.process for p in self.pipelines]:
             if p.is_alive():
-                p.terminate()
+                gracefully = False
+                print(f"Forcefully terminating process {p.pid}.", file=stderr)
+                p.kill()
 
         if self.memory:
             self.memory.close()
@@ -262,4 +324,7 @@ class Analyzer:
             p.process = None
         self.memory = None
         self.running = False
+
+        if gracefully:
+            print("Stopped the analyzer gracefully.", file=stderr)
         self.stopping = False
