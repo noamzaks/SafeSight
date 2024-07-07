@@ -708,5 +708,8 @@ temp_frames
 zaksaset
 models
 override.tmp.txt
+/encoder_models
 
 *.lock
+
+.DS_Store

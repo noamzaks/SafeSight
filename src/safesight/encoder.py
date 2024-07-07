@@ -1,7 +1,6 @@
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-import sys
 from typing import Callable, Dict, List, Optional
 
 from PIL.Image import Image
