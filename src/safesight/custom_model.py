@@ -14,7 +14,8 @@ import torchvision
 from PIL.Image import Image
 
 from safesight.test_results import TestResults
-from safesight.cli import cli
+
+# from safesight.cli import cli
 from safesight.model_settings import settings as custom_model_settings
 from safesight.model_settings import ModelSettings
 
@@ -64,9 +65,7 @@ class Net(nn.Module):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = torch.flatten(x, 1)  # flatten all dimensions except batch
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.linear_model(x)
         return x
 
     def evaluate_image(self, image: Image) -> Union[str, int]:
@@ -97,10 +96,20 @@ class Net(nn.Module):
 
         # Calculate the size of the feature map after the convolutional and pooling layers
         conv_output_size = self._get_conv_output(self._get_image_size())
-
-        self.fc1 = nn.Linear(conv_output_size, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 2)
+        # Includes output layer
+        self.linear_layers = []
+        self.linear_layers.append(
+            nn.Linear(conv_output_size, settings.linear_layers[0])
+        )
+        self.linear_layers.append(nn.ReLU())
+        if settings.linear_layers:
+            for i in range(len(settings.linear_layers) - 1):
+                self.linear_layers.append(
+                    nn.Linear(settings.linear_layers[i], settings.linear_layers[i + 1])
+                )
+                self.linear_layers.append(nn.ReLU())
+        self.linear_layers.append(nn.Linear(settings.linear_layers[-1], 2))
+        self.linear_model = nn.Sequential(*self.linear_layers)
 
     def get_extra_state(self) -> Tuple[ModelSettings, Dict, Dict]:
         return (self.settings, self.class_to_idx, self.idx_to_class)
@@ -127,7 +136,9 @@ def train(traindir: Path, net: Net):
         net.parameters(), lr=net.settings.learning_rate, momentum=net.settings.momentum
     )
 
-    assert len(os.listdir(traindir)) == 2, "Train directory should have two subdirectories"
+    assert (
+        len(os.listdir(traindir)) == 2
+    ), "Train directory should have two subdirectories"
     trainset = torchvision.datasets.ImageFolder(
         str(traindir), transform=net.settings.transform
     )
@@ -245,26 +256,26 @@ def run_with_settings(
     return TestResults(labels, predictions)
 
 
-@cli.group()
+# @cli.group()
 def custom_model():
     """
     Commands to train and run custom models.
     """
 
 
-@custom_model.command()
-@click.option(
-    "--train-path",
-    type=click.Path(exists=True, dir_okay=True, file_okay=False),
-    default=Path("data/train"),
-    show_default=True,
-)
-@click.option(
-    "--test-path",
-    type=click.Path(exists=True, dir_okay=True, file_okay=False),
-    default=Path("data/test"),
-    show_default=True,
-)
+# @custom_model.command()
+# @click.option(
+#     "--train-path",
+#     type=click.Path(exists=True, dir_okay=True, file_okay=False),
+#     default=Path("data/train"),
+#     show_default=True,
+# )
+# @click.option(
+#     "--test-path",
+#     type=click.Path(exists=True, dir_okay=True, file_okay=False),
+#     default=Path("data/test"),
+#     show_default=True,
+# )
 def train_and_run_image(train_path: Path, test_path: Path):
     """
     Train and test image classification models with different parameters, taken from
@@ -296,3 +307,7 @@ def train_and_run_image(train_path: Path, test_path: Path):
             setting, train_path, test_path, model_dir / Path(f"model{i}.pth")
         )
         print(f"{i}: Settings: {setting}; Results: {results}")
+
+
+if __name__ == "__main__":
+    train_and_run_image(Path("zaksaset/train"), Path("zaksaset/test"))
