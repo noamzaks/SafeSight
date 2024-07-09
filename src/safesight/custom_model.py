@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
 import PIL.Image
-import click
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

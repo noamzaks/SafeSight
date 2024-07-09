@@ -9,7 +9,7 @@ class YOLOPipeline(Pipeline):
         self.threshold = threshold
 
     def process_image(self, image: Image) -> Evaluation:
-        results = self.model(image)[0]
+        results = self.model(image, verbose=False)[0]
 
         for result in results.boxes.data.tolist():
             x1, y1, x2, y2, score, class_id = result
