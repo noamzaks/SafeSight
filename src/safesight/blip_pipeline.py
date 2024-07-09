@@ -1,7 +1,6 @@
 from safesight.pipeline import Pipeline, Evaluation
 import torch
 from lavis.models import load_model_and_preprocess
-from typing import Optional
 from PIL.Image import Image
 import PIL.Image
 
@@ -19,7 +18,7 @@ class BlipPipeline(Pipeline):
 
         self.question = f"""Please answer with "yes" or "no". {question}"""
 
-    def process_image(self, image: Image) -> Optional[Evaluation]:
+    def process_image(self, image: Image) -> Evaluation:
         input_img = self.vis_processors["eval"](image).unsqueeze(0).to(self.device)
         input_q = self.txt_processors["eval"](self.question)
 
@@ -33,8 +32,11 @@ class BlipPipeline(Pipeline):
 
         return self.last_evaluation
 
-    def evaluate(self) -> Evaluation:
-        return self.last_evaluation
+    def prepare(self):
+        pass
+
+    def cleanup(self):
+        pass
 
 
 if __name__ == "__main__":

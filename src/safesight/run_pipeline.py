@@ -5,20 +5,23 @@ import PIL.Image
 from tqdm import tqdm
 
 from safesight.cli import pipeline
-from safesight.custom_model_pipeline import CustomModelPipeline
 from safesight.pipeline import Pipeline
-from safesight.yolo_pipeline import YOLOPipeline
-from safesight.gemini_pipeline import GeminiPipeline
 
-PIPELINES = ["yolo", "gemini", "custom_model"]
+PIPELINES = ["yolo", "gemini", "custom_model", "blip"]
 
 def get_pipeline(pipeline_name: str) -> Pipeline:
     if pipeline_name == "yolo":
+        from safesight.yolo_pipeline import YOLOPipeline
         return YOLOPipeline("best.pt")
     elif pipeline_name == "gemini":
+        from safesight.gemini_pipeline import GeminiPipeline
         return GeminiPipeline()
     elif pipeline_name == "custom_model":
+        from safesight.custom_model_pipeline import CustomModelPipeline
         return CustomModelPipeline("models/model2.pth")
+    elif pipeline_name == "blip":
+        from safesight.blip_pipeline import BlipPipeline
+        return BlipPipeline("Is there a car accident in this photo?")
     return None
 
 @pipeline.command()
