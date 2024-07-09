@@ -1,35 +1,57 @@
 from pathlib import Path
+from typing import List
+from tqdm import tqdm
 
+import click
 import pytube
+import pytube.exceptions
 from pytube import Search
 from pytube.innertube import _default_clients
+from safesight.cli import youtube_downloader
 
 
-def search_and_download(search_term: str, output_path: str):
+def search(search_term: str, video_count: int) -> List[pytube.YouTube]:
     """
-    Searches for and donwloads the first set of videos (about 20) that come up when searching for
-    the provided term.
+    Searches for `search_term` and returns a list of the first `num_videos` that result.
     """
+
     search = Search(search_term)
-    assert search.results is not None
-
-    for video in search.results:
-        assert type(video) is pytube.YouTube
-
-        stream = video.streams.get_lowest_resolution()
-        assert stream is not None
-
-        stream.download(output_path)
+    if not search.results:
+        return []
+    while len(search.results) < video_count:
+        search.get_next_results()
+    return search.results[:video_count]
 
 
-def main():
+@youtube_downloader.command()
+@click.option("--search-term", type=str, help="String to search for on youtube")
+@click.option(
+    "--output-path",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False),
+    help="Path to download videos to",
+)
+@click.option(
+    "--video-count",
+    type=int,
+    default=10,
+    help="Number of videos to download",
+    show_default=True,
+)
+def download(search_term: str, output_path: str, video_count: int):
+    """
+    Searches for and downloads the first `num_videos` that come up when searching for
+    the provided term, at the lowest resolution possible.
+    """
     # To bypass age-restriction: (see https://stackoverflow.com/questions/75791765/how-to-download-videos-that-require-age-verification-with-pytube)
     _default_clients["ANDROID_MUSIC"] = _default_clients["ANDROID_CREATOR"]
 
-    output_path = Path("./youtube_dataset/")
-    output_path.mkdir(parents=True, exist_ok=True)
-    search_and_download("traffic accident", str(output_path))
+    results = search(search_term, video_count)
 
+    for video in tqdm(results):
+        try:
+            stream = video.streams.get_lowest_resolution()
 
-if __name__ == "__main__":
-    main()
+            if stream:
+                stream.download(output_path, timeout=10)
+        except pytube.exceptions.LiveStreamError:
+            pass

@@ -15,6 +15,18 @@ Detecting Suspicious Events in Video.
 2. Run ``` safesight <COMMAND> ``` (for help run ``` safesight --help ```).
 
 ## Data
+=======
+## Available Commands
+- dataset: Download datasets
+- gemini: Interface with Gemini, Google's LLM
+- lavis: Run BLIP - a locally runnable LLM
+- nvidia: Interface with the Nvidia API
+- pipeline: Run Pipelines seperately from an Analyzer
+- videomae: Run the VideoMAE model
+- yolo: Run the YOLO model for video/image segmentation
+- youtube-downloader: Utility to search and download videos from Youtube
+
+# Data
 By default, the commands assume the dataset is in the directory `data` in the following format:
     
         data/train/accident/image1.jpg
