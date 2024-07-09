@@ -14,8 +14,6 @@ Detecting Suspicious Events in Video.
 1. Make sure the virtual environment with the correct python version is activated (check installation step 3). You can always install additional versions with ``` ./bootstrap -p <version> ```
 2. Run ``` safesight <COMMAND> ``` (for help run ``` safesight --help ```).
 
-## Data
-=======
 ## Available Commands
 - dataset: Download datasets
 - gemini: Interface with Gemini, Google's LLM
@@ -25,6 +23,12 @@ Detecting Suspicious Events in Video.
 - videomae: Run the VideoMAE model
 - yolo: Run the YOLO model for video/image segmentation
 - youtube-downloader: Utility to search and download videos from Youtube
+
+## Examples
+
+### Donwloading youtube videos:
+To download 5 videos of cute cats into the directory `cat_videos`:
+```safesight youtube-downloader download --search-term "Cute cats" --output-path cat_videos --video-count 5```
 
 # Data
 By default, the commands assume the dataset is in the directory `data` in the following format:

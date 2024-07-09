@@ -52,5 +52,5 @@ def download(search_term: str, output_path: str, video_count: int):
 
             if stream:
                 stream.download(output_path, timeout=10)
-        except pytube.exceptions.LiveStreamError:
+        except pytube.exceptions.PytubeError:
             pass
