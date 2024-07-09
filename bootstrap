@@ -66,7 +66,7 @@ function check_python() {
     fi
   fi
 
-  python_installation=$(uv toolchain find "$PYTHON_VERSION" 2> /dev/null)
+  python_installation=$(uv python find "$PYTHON_VERSION" 2> /dev/null)
 
   if [ -z "$python_installation" ]; then
     echo "Python $PYTHON_VERSION is not installed."
@@ -76,9 +76,9 @@ function check_python() {
     fi
     if [ "$REPLY" = "y" ] || [ "$YES" = true ]; then
       echo "Installing Python $PYTHON_VERSION..."
-      uv toolchain install "$PYTHON_VERSION" $VERBOSE
+      uv python install "$PYTHON_VERSION" $VERBOSE
 
-      python_installation=$(uv toolchain find "$PYTHON_VERSION")
+      python_installation=$(uv python find "$PYTHON_VERSION")
     else
       echo "Install Python $PYTHON_VERSION and run the script again."
       exit 1
