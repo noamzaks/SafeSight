@@ -30,7 +30,8 @@ Detecting Suspicious Events in Video.
 To download 5 videos of cute cats into the directory `cat_videos`:
 
 ```bash
-safesight youtube-downloader download --search-term "Cute cats" --output-path cat_videos --video-count 5```
+safesight youtube-downloader download --search-term "Cute cats" --output-path cat_videos --video-count 5
+```
 
 # Data
 By default, the commands assume the dataset is in the directory `data` in the following format:
