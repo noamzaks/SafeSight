@@ -19,7 +19,7 @@ from safesight.cli import nvidia
 @click.option(
     "--prompt",
     type=str,
-    default="Realistic image of a road with cars",
+    default="Is there a car accident in this image?",
     show_default=True,
 )
 @click.option(
@@ -37,7 +37,7 @@ def run_on_dataset(directory, prompt, model):
     print(prompt.replace("\n", " "))
 
     DEFAULT_HEADERS = {
-        "Authorization": f"Bearer {os.environ["NVIDIA_API_KEY"]}",
+        "Authorization": f"Bearer {os.environ['NVIDIA_API_KEY']}",
         "Accept": "application/json"
     }
 
@@ -47,7 +47,7 @@ def run_on_dataset(directory, prompt, model):
             if not filename.endswith(".png"):
                 continue
             response = requests.post("https://api.nvcf.nvidia.com/v2/nvcf/assets",
-                                     headers=DEFAULT_HEADERS | {"Content-Type": "application/json"}, json={
+                                     headers={**DEFAULT_HEADERS, "Content-Type": "application/json"}, json={
                     "contentType": "image/png",
                     "description": "potato"
                 })
@@ -62,7 +62,7 @@ def run_on_dataset(directory, prompt, model):
                                                          "x-amz-meta-nvcf-asset-description": "potato"},
                                     data=image_contents)
 
-            response = requests.post(model_api, headers=DEFAULT_HEADERS | {"NVCF-INPUT-ASSET-REFERENCES": asset_id},
+            response = requests.post(model_api, headers={**DEFAULT_HEADERS, "NVCF-INPUT-ASSET-REFERENCES": asset_id},
                                      json={"messages": [{"role": "user",
                                                          "content": f'{prompt}. <img src="data:image/png;asset_id,{asset_id}" />'}]})
             response = response.json()
@@ -102,7 +102,7 @@ def generate_image(prompt, model, output_path):
     invoke_url = f"https://ai.api.nvidia.com/v1/genai/{model}"
 
     headers = {
-        "Authorization": f"Bearer {os.environ["NVIDIA_API_KEY"]}",
+        "Authorization": f"Bearer {os.environ['NVIDIA_API_KEY']}",
         "Accept": "application/json",
     }
 
