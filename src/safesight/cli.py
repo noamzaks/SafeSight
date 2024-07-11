@@ -89,14 +89,6 @@ def lavis():
 
 
 @cli.group(
-    cls=ModuleGroup, module="safesight.test_videomae", python_accepted_versions=["3.8"]
-)
-def videomae():
-    """Commands for VideoMAE model"""
-    pass
-
-
-@cli.group(
     cls=ModuleGroup, module="safesight.test_yolo", python_accepted_versions=["3.8"]
 )
 def yolo():

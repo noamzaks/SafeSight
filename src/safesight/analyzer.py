@@ -387,9 +387,9 @@ class Analyzer:
 def run_analyzer(model_path: Path):
     analyzer = Analyzer()
     model_pipeline = CustomModelPipeline(model_path)
-    gemini_pipeline = GeminiPipeline()
+    # gemini_pipeline = GeminiPipeline()
     analyzer.add_pipeline("custom_model", model_pipeline, True)
-    analyzer.add_pipeline("gemini", gemini_pipeline, False)
+    # analyzer.add_pipeline("gemini", gemini_pipeline, False)
     analyzer.start_analyzer(30, memory_size=1 << 30)  # 1 GB of shared memory
     signal.signal(signal.SIGINT, lambda _, __: analyzer.stop_analysis())
     signal.pause()
