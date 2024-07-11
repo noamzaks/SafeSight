@@ -104,6 +104,14 @@ def yolo():
     pass
 
 
+@cli.group(
+    cls=ModuleGroup, module="safesight.analyzer", python_accepted_versions=["3.8"]
+)
+def analyzer():
+    """Commands for running the Analyzer"""
+    pass
+
+
 @cli.group(cls=ModuleGroup, module="safesight.nvidia")
 def nvidia():
     """
